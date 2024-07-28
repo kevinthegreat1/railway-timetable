@@ -19,9 +19,11 @@ export function Timetable({stationNames, date, trains, setTrains, sortedStations
   Chart.register(CategoryScale, LineElement, PointElement, TimeScale);
 
   const [stations, setStations] = useState<Station[]>(sortedStations.map(stationName => ({stationName, enabled: true})));
+  const enabledTrains = trains.filter(isEnabled);
+  const trainsText = `显示 ${enabledTrains.length}/${trains.length}列`;
 
   const data: ChartData<"line", TrainStopData[]> = {
-    datasets: trains.filter(isEnabled).map(train => {
+    datasets: enabledTrains.map(train => {
       return {
         label: train.trainSummary.station_train_code,
         data: train.trainStops.filter(stop => stations.find(({stationName}) => stationName == stop.station_name)?.enabled).flatMap(stop => {
@@ -58,6 +60,9 @@ export function Timetable({stationNames, date, trains, setTrains, sortedStations
       y: {
         type: "category",
         labels: stations.filter(({enabled}) => enabled).map(({stationName}) => stationName)
+          .filter((stationName) =>
+            enabledTrains.some(train => train.trainStops.some(stop => stop.station_name == stationName))
+          )
       }
     },
     parsing: {
@@ -66,7 +71,7 @@ export function Timetable({stationNames, date, trains, setTrains, sortedStations
     }
   };
 
-  function getEnabledCallback(index: number): ChangeEventHandler<HTMLInputElement> {
+  function getTrainEnabledCallback(index: number): ChangeEventHandler<HTMLInputElement> {
     return e => {
       const newTrains = [...trains];
       newTrains[index].enabled = e.target.checked;
@@ -74,16 +79,35 @@ export function Timetable({stationNames, date, trains, setTrains, sortedStations
     }
   }
 
+  function getStationEnabledCallback(index: number): ChangeEventHandler<HTMLInputElement> {
+    return e => {
+      const newStations = [...stations];
+      newStations[index].enabled = e.target.checked;
+      setStations(newStations);
+    }
+  }
+
   return (
     <div className="flex flex-col items-center p-4 gap-4">
-      <div className="text-xl">{date}</div>
+      <div className="text-xl">运行图 {date}</div>
+      <div className="text-lg">列车（{trainsText}）</div>
       <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
         {trains.map((train, index) =>
           <div key={index} className="px-2 rounded-xl bg-sky-100">
-            <TrainSummaryCard stationNames={stationNames} train={train} showDetail={false} enabledOption={true} enabledOptionCallback={getEnabledCallback(index)}/>
+            <TrainSummaryCard stationNames={stationNames} train={train} showDetail={false} enabledOption={true} enabledOptionCallback={getTrainEnabledCallback(index)}/>
           </div>
         )}
       </div>
+      <div className="text-lg">站点</div>
+      <div className="flex flex-wrap gap-4">
+        {stations.map(({stationName, enabled}, index) =>
+          <div key={stationName} className="p-2 rounded-xl bg-sky-100 flex flex-row gap-2">
+            <div>{stationName}</div>
+            <input id="enabled" type="checkbox" checked={enabled} onChange={getStationEnabledCallback(index)}/>
+          </div>
+        )}
+      </div>
+      <div className="text-lg">运行图</div>
       <Line data={data} options={options}></Line>
     </div>
   )

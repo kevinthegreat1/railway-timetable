@@ -19,7 +19,7 @@ export function TrainSummaryCard({stationNames, train, showDetail = true, enable
         <div className="grow basis-0"></div>
         <div className="text-lg">{trainSummary.station_train_code}</div>
         <div className="grow basis-0">
-          {enabledOption && <input type="checkbox" checked={train.enabled} onChange={enabledOptionCallback} className=""/>}
+          {enabledOption && <input type="checkbox" checked={train.enabled} onChange={enabledOptionCallback}/>}
         </div>
       </div>
       <div className="py-2 flex justify-evenly items-center">
