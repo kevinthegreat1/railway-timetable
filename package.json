@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -15,21 +15,25 @@
     "chartjs-adapter-dayjs-4": "^1.0.4",
     "dayjs": "^1.11.11",
     "lodash.uniqby": "^4.7.0",
-    "next": "14.2.4",
-    "react": "^18",
+    "next": "15.3.3",
+    "react": "19.1.0",
     "react-chartjs-2": "^5.2.0",
-    "react-dom": "^18",
+    "react-dom": "19.1.0",
     "tailwind-scrollbar-hide": "^1.1.7",
     "toposort": "^2.0.2"
   },
   "devDependencies": {
     "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/react": "19.1.6",
+    "@types/react-dom": "19.1.5",
     "eslint": "^8",
-    "eslint-config-next": "14.2.4",
+    "eslint-config-next": "15.3.3",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
+  },
+  "overrides": {
+    "@types/react": "19.1.6",
+    "@types/react-dom": "19.1.5"
   }
 }
