@@ -10,7 +10,7 @@ type TrainSummaryCardProps = {
   enabledOptionCallback?: ChangeEventHandler<HTMLInputElement>,
 };
 
-export function TrainSummaryCard({stationNames, train, showDetail = true, enabledOption = false, enabledOptionCallback = () => {}}: TrainSummaryCardProps) {
+export function TrainSummaryCard({stationNames, train, showDetail = true, enabledOption = true, enabledOptionCallback = () => {}}: TrainSummaryCardProps) {
   const {trainSummary, trainStops} = train;
 
   return (

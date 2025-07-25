@@ -1,8 +1,16 @@
 import {StationNames, Trains} from "@/types";
 import {TrainSummaryCard} from "@/components/train-summary-card";
 import {isLoaded} from "@/utils/train";
+import {ChangeEventHandler} from "react";
 
-export function TrainSummaries({stationNames, trains, generateTimetable}: { stationNames: StationNames, trains: Trains, generateTimetable: () => void }) {
+type TrainSummariesProps = {
+  stationNames: StationNames,
+  trains: Trains,
+  getTrainEnabledCallback: (train_no: string) => ChangeEventHandler<HTMLInputElement>,
+  generateTimetable: () => void
+};
+
+export function TrainSummaries({stationNames, trains, getTrainEnabledCallback, generateTimetable}: TrainSummariesProps) {
   const loadedTrains = trains.filter(isLoaded);
   const trainsText = loadedTrains.length !== trains.length ? `加载中 ${loadedTrains.length}/${trains.length}列` : `${trains.length}列`
 
@@ -12,7 +20,7 @@ export function TrainSummaries({stationNames, trains, generateTimetable}: { stat
       <div className="grow overflow-auto scrollbar-hide grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
         {trains.map((train, index) =>
           <div key={index} className="px-2 rounded-xl bg-sky-100">
-            <TrainSummaryCard stationNames={stationNames} train={train}/>
+            <TrainSummaryCard stationNames={stationNames} train={train} enabledOptionCallback={getTrainEnabledCallback(train.trainSummary.train_no)}/>
           </div>
         )}
       </div>

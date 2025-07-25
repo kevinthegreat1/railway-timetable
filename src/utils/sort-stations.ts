@@ -1,4 +1,4 @@
-import {isLoaded} from "@/utils/train";
+import {isEnabled, isLoaded} from "@/utils/train";
 import toposort from "toposort";
 import {getStationName} from "@/utils/station-names";
 import {DatedRoute, StationNames, Trains, TrainStops} from "@/types";
@@ -13,7 +13,7 @@ export function sortStations(stationNames: StationNames, timetableRoute: DatedRo
   // Create a graph of stations
   const stationsGraph: [string, string][] = [];
   // Loop through all trains with stops loaded and add the stations to the graph
-  for (const train of trains.filter(isLoaded)) {
+  for (const train of trains.filter(isLoaded).filter(isEnabled)) {
     let trainStops;
     if (train.trainSummary.from_station_telecode === timetableRoute.fromStationCode && train.trainSummary.to_station_telecode === timetableRoute.toStationCode) {
       // Train stops are already in the correct order

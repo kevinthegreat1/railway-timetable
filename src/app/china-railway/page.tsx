@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useState} from "react";
+import {ChangeEventHandler, useEffect, useState} from "react";
 import {DatedRoute, StationNames, Trains} from "@/types";
 import {RoutesForm} from "@/components/routes-form";
 import {Timetable} from "@/components/timetable";
@@ -29,11 +29,19 @@ export default function TimetablePage() {
 
   const sortedStations = sortStations(stationNames, timetableRoute, trains);
 
+  function getTrainEnabledCallback(train_no: string): ChangeEventHandler<HTMLInputElement> {
+    return e => {
+      const newTrains = [...trains];
+      newTrains.find(t => t.trainSummary.train_no === train_no)!.enabled = e.target.checked;
+      setTrains(newTrains);
+    }
+  }
+
   if (generateTimetable) {
     if (trains && trains.every(isLoaded) && sortedStations) {
       return (
         <main className="min-h-screen bg-sky-50">
-          <Timetable stationNames={stationNames} date={timetableRoute.date} trains={trains} setTrains={setTrains} sortedStations={sortedStations} key={sortedStations.join(',')}/> {/* Pass a key to ensure the station enabled states are reset in timetable for every different list of sorted stations. */}
+          <Timetable stationNames={stationNames} date={timetableRoute.date} trains={trains} getTrainEnabledCallback={getTrainEnabledCallback} sortedStations={sortedStations} key={sortedStations.join(',')}/> {/* Pass a key to ensure the station enabled states are reset in timetable for every different list of sorted stations. */}
         </main>
       )
     } else {
@@ -43,7 +51,7 @@ export default function TimetablePage() {
     if (trains && trains.length) {
       return (
         <main className="min-h-screen bg-sky-50">
-          <TrainSummaries stationNames={stationNames} trains={trains} generateTimetable={() => setGenerateTimetable(true)}/>
+          <TrainSummaries stationNames={stationNames} trains={trains} getTrainEnabledCallback={getTrainEnabledCallback} generateTimetable={() => setGenerateTimetable(true)}/>
         </main>
       )
     } else {
