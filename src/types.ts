@@ -30,26 +30,31 @@ export type Routes = Route[];
 
 export type TrainSummary = {
   arrive_time: string,
-  controlled_train_flag: string,
-  controlled_train_message: string,
-  day_difference: string,
   end_station_telecode: string,
-  exchange_train_flag: string,
-  flag: string,
-  from_station_name: string,
   from_station_telecode: string,
-  houbu_train_flag: string,
-  is_support_card: string,
   lishi: string,
-  location_code: string,
-  message: string,
   start_station_telecode: string,
   start_time: string,
   start_train_date: string,
-  station_train_code: string,
-  to_station_name: string,
+  station_train_code: string, // Human-readable format of the train number at the departing station
   to_station_telecode: string,
   train_no: string,
+}
+
+// These fields are probably given by the API but are currently neither parsed nor used.
+// These names are left here as documentation.
+export type TrainSummaryExtended = TrainSummary & {
+  controlled_train_flag: string,
+  controlled_train_message: string,
+  day_difference: string,
+  exchange_train_flag: string,
+  flag: string,
+  from_station_name: string,
+  houbu_train_flag: string,
+  is_support_card: string,
+  location_code: string,
+  message: string,
+  to_station_name: string,
   yp_ex: string,
   yp_info: string,
   yp_info_cover: string,

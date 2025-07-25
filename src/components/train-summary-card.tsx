@@ -25,13 +25,13 @@ export function TrainSummaryCard({stationNames, train, showDetail = true, enable
       <div className="py-2 flex justify-evenly items-center">
         <div>
           <div>{trainSummary.start_time}</div>
-          <div>{trainSummary.from_station_name} ({trainSummary.from_station_telecode})</div>
+          <div>{getStationName(stationNames, trainSummary.from_station_telecode)} ({trainSummary.from_station_telecode})</div>
           <div>始：{getStationName(stationNames, trainSummary.start_station_telecode)} ({trainSummary.start_station_telecode})</div>
         </div>
         <div>→</div>
         <div>
           <div>{trainSummary.arrive_time}</div>
-          <div>{trainSummary.to_station_name} ({trainSummary.to_station_telecode})</div>
+          <div>{getStationName(stationNames, trainSummary.to_station_telecode)} ({trainSummary.to_station_telecode})</div>
           <div>终：{getStationName(stationNames, trainSummary.end_station_telecode)} ({trainSummary.end_station_telecode})</div>
         </div>
       </div>

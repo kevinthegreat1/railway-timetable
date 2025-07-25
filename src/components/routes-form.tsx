@@ -1,7 +1,5 @@
 import {DatedRoute, Route, Routes, StationNames, Trains, TrainStops, TrainSummary} from "@/types";
 import {ChangeEvent, useState} from "react";
-import {RequestConfigTrainsToday, requestConfigTrainsToday} from "@/utils/cr-trains-request-config";
-import {RequestDataTrains, requestDataTrainsOtherDay, requestDataTrainsToday} from "@/utils/cr-trains-request-data";
 import RouteEntry from "@/components/route-entry";
 import uniqby from "lodash.uniqby";
 import {getStationCode, getStationName} from "@/utils/station-names";
@@ -63,54 +61,54 @@ export function RoutesForm({timetableRoute, setTimetableRoute, setLoadTrainSumma
   }
 
   function submitRoutes() {
-    setLoadTrainSummaries(true);
-    const date = timetableRoute.date.replaceAll('-', '');
-    if (date === new Date().toISOString().split('T')[0].replaceAll('-', '')) {
-      getTrainsForAllRoutes("com.cars.otsmobile.trainTimeTable.queryCurrentDayLeftTicket", requestConfigTrainsToday, requestDataTrainsToday, date);
-    } else {
-      getTrainsForAllRoutes("com.cars.otsmobile.queryLeftTicket", {} as RequestConfigTrainsToday, requestDataTrainsOtherDay, date);
-    }
-  }
-
-  function getTrainsForAllRoutes(operationType: string, requestConfig: RequestConfigTrainsToday, requestData: RequestDataTrains, date: string) {
     if (!timetableRoute.fromStationCode || !timetableRoute.toStationCode) {
       alert("出发地和目的地不能为空");
       return;
+    } else if (isNaN(Date.parse(timetableRoute.date))) {
+      alert("日期格式不正确，请使用 YYYY-MM-DD 格式");
+      return;
+    } else if (Date.parse(timetableRoute.date) < Date.now()) {
+      alert("日期不能早于今天");
+      return;
     }
-    requestData[0].train_date = date;
 
-    const promises = []
-    promises.push(...getTrainsForRoute(operationType, requestConfig, requestData, timetableRoute));
+    setLoadTrainSummaries(true);
+    fetch(`/china-railway/init`).then(() => {
+      getTrainsForAllRoutes(timetableRoute.date);
+    })
+  }
+
+  function getTrainsForAllRoutes(date: string) {
+    const promises: Promise<TrainSummary[]>[] = []
+    promises.push(...getTrainsForRoute(date, timetableRoute));
     routesToSearch.filter((route, index) => route.fromStationCode && route.toStationCode ? true : alert(`路径${index + 1}的出发地和目的地不能为空`))
       .forEach(route => {
-        promises.push(...getTrainsForRoute(operationType, requestConfig, requestData, route));
+        promises.push(...getTrainsForRoute(date, route));
       });
 
     Promise.all(promises).then(async routes => {
-      const trains: Trains = uniqby((await Promise.all(routes.map(route => route.result.ticketResult))).flat(), "train_no").map(trainSummary => ({trainSummary, trainStops: [], enabled: true}));
+      const trains: Trains = uniqby(routes.flat(), "train_no").map(trainSummary => ({trainSummary, trainStops: [], enabled: true}));
       setTrains(trains);
       return getTrainsDetails(trains);
     });
   }
 
-  function getTrainsForRoute(operationType: string, requestConfig: RequestConfigTrainsToday, requestData: [{ train_date: string; from_station: string; to_station: string }], timetableRoute: Route) {
-    const forward = getTrainsForRouteOneWay(operationType, requestConfig, requestData, timetableRoute.fromStationCode!, timetableRoute.toStationCode!);
-    if (timetableRoute.bothWays) {
-      const backward = getTrainsForRouteOneWay(operationType, requestConfig, requestData, timetableRoute.toStationCode!, timetableRoute.fromStationCode!);
+  function getTrainsForRoute(date: string, route: Route) {
+    const forward = getTrainsForRouteOneWay(date, route.fromStationCode!, route.toStationCode!);
+    if (route.bothWays) {
+      const backward = getTrainsForRouteOneWay(date, route.toStationCode!, route.fromStationCode!);
       return [forward, backward];
     }
     return [forward];
   }
 
-  async function getTrainsForRouteOneWay(operationType: string, requestConfig: RequestConfigTrainsToday, requestData: RequestDataTrains, fromStationCode: string, toStationCode: string) {
-    requestData[0].from_station = fromStationCode;
-    requestData[0].to_station = toStationCode;
-    return await (await fetch(`/china-railway/trains?operationType=${operationType}&requestData=${encodeURIComponent(JSON.stringify(requestData))}`, requestConfig)).json();
+  async function getTrainsForRouteOneWay(date: string, fromStationCode: string, toStationCode: string): Promise<TrainSummary[]> {
+    return await (await fetch(`/china-railway/trains?leftTicketDTO.train_date=${date}&leftTicketDTO.from_station=${fromStationCode}&leftTicketDTO.to_station=${toStationCode}`)).json();
   }
 
   async function getTrainsDetails(trains: Trains) {
     for (const train of trains) {
-      trains.find(t => t.trainSummary.train_no === train.trainSummary.train_no)!.trainStops = await getTrainDetails(train.trainSummary);
+      train.trainStops = await getTrainDetails(train.trainSummary);
       setTrains([...trains]);
       await sleep(500);
     }
@@ -136,7 +134,7 @@ export function RoutesForm({timetableRoute, setTimetableRoute, setLoadTrainSumma
           <div className="grow basis-0"></div>
           <div className="text-xl">路径</div>
           <div className="grow basis-0 flex justify-end">
-            <button onClick={newRouteToSearch} className="w-8 h-8 rounded-full text-lg bg-sky-200">⊕</button>
+            <button onClick={newRouteToSearch} className="w-8 h-8 rounded-full text-lg bg-sky-200">+</button>
           </div>
         </li>
         {routesToSearch.map((route, index) =>
