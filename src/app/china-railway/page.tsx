@@ -5,11 +5,11 @@ import {RoutesForm} from "@/components/routes-form";
 import {Timetable} from "@/components/timetable";
 import {TrainSummaries} from "@/components/train-summaries";
 import {Loading} from "@/components/loading";
-import {CrStationNames, CrTrains} from "@/types/cr-types";
-import {DatedRoute, Routes} from "@/types/types";
+import {CrStationNames} from "@/types/cr-types";
+import {DatedRoute, Routes, Trains} from "@/types/types";
 import {getTrainsForAllRoutes} from "@/utils/cr-utils";
 import {sortStations} from "@/utils/sort-stations";
-import {fromCrTrain, isLoaded} from "@/utils/train";
+import {isLoaded} from "@/utils/train";
 
 export default function TimetablePage() {
   const [stationNames, setStationNames] = useState<CrStationNames>([]);
@@ -25,11 +25,11 @@ export default function TimetablePage() {
 
   const [timetableRoute, setTimetableRoute] = useState<DatedRoute>({bothWays: true, date: new Date().toISOString().split('T')[0]} as DatedRoute);
 
-  const [trains, setTrains] = useState<CrTrains>([]);
+  const [trains, setTrains] = useState<Trains>([]);
   const [loadTrainSummaries, setLoadTrainSummaries] = useState<boolean>(false);
   const [generateTimetable, setGenerateTimetable] = useState<boolean>(false);
 
-  const sortedStations = sortStations(stationNames, timetableRoute, trains.map(fromCrTrain));
+  const sortedStations = sortStations(stationNames, timetableRoute, trains);
 
   function loadTrains(timetableRoute: DatedRoute, routesToSearch: Routes) {
     fetch(`/china-railway/init`).then(() => {
@@ -37,10 +37,10 @@ export default function TimetablePage() {
     })
   }
 
-  function getTrainEnabledCallback(train_no: string): ChangeEventHandler<HTMLInputElement> {
+  function getTrainEnabledCallback(trainId: string): ChangeEventHandler<HTMLInputElement> {
     return e => {
       const newTrains = [...trains];
-      newTrains.find(t => t.trainSummary.train_no === train_no)!.enabled = e.target.checked;
+      newTrains.find(t => t.trainId === trainId)!.enabled = e.target.checked;
       setTrains(newTrains);
     }
   }

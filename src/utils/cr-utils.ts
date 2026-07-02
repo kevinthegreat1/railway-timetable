@@ -1,10 +1,11 @@
 import uniqby from "lodash.uniqby";
 import {CrTrains, CrTrainStops, CrTrainSummary} from "@/types/cr-types";
-import {DatedRoute, Route, Routes} from "@/types/types";
-import {sleep} from "@/utils/sleep";
+import {DatedRoute, Route, Routes, Trains} from "@/types/types";
+import {sleep} from "@/utils/time";
+import {fromCrTrain} from "@/utils/train";
 
-export function getTrainsForAllRoutes(timetableRoute: DatedRoute, routesToSearch: Routes, setTrains: (trains: CrTrains) => void) {
-  const promises: Promise<CrTrainSummary[]>[] = []
+export function getTrainsForAllRoutes(timetableRoute: DatedRoute, routesToSearch: Routes, setTrains: (trains: Trains) => void) {
+  const promises: Promise<CrTrainSummary[]>[] = [];
   promises.push(...getTrainsForRoute(timetableRoute.date, timetableRoute));
   routesToSearch.filter((route, index) => route.fromStationCode && route.toStationCode ? true : alert(`路径${index + 1}的出发地和目的地不能为空`))
     .forEach(route => {
@@ -13,7 +14,7 @@ export function getTrainsForAllRoutes(timetableRoute: DatedRoute, routesToSearch
 
   Promise.all(promises).then(async routes => {
     const trains: CrTrains = uniqby(routes.flat(), "train_no").map(trainSummary => ({trainSummary, trainStops: [], enabled: true}));
-    setTrains(trains);
+    setTrains(trains.map(fromCrTrain));
     return getTrainsDetails(trains, setTrains);
   });
 }
@@ -31,10 +32,10 @@ async function getTrainsForRouteOneWay(date: string, fromStationCode: string, to
   return await (await fetch(`/china-railway/trains?leftTicketDTO.train_date=${date}&leftTicketDTO.from_station=${fromStationCode}&leftTicketDTO.to_station=${toStationCode}`)).json();
 }
 
-async function getTrainsDetails(trains: CrTrains, setTrains: (trains: CrTrains) => void) {
+async function getTrainsDetails(trains: CrTrains, setTrains: (trains: Trains) => void) {
   for (const train of trains) {
     train.trainStops = await getTrainDetails(train.trainSummary);
-    setTrains([...trains]);
+    setTrains(trains.map(fromCrTrain));
     await sleep(500);
   }
 }

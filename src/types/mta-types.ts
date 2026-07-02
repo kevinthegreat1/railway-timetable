@@ -51,8 +51,10 @@ export type MtaTrainDetails = {
   bike_rule: string,
 }
 
+export type MtaTrainId = `${string}_${number}-${number}-${number}_${number}`;
+
 export type MtaTrain = {
-  train_id: string,
+  train_id: MtaTrainId,
   railroad: string,
   run_date: string,
   train_num: string,

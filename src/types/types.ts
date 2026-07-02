@@ -17,15 +17,27 @@ export type DatedRoute = Route & {
 
 export type Routes = Route[];
 
+export type HourMinuteTime = `${number}:${number}`;
+
 export type TrainStop = {
-  stationName?: string,
+  stationName: string,
+  stationNo?: string,
+  arriveTime: HourMinuteTime,
+  leaveTime: HourMinuteTime,
+  stopoverTime?: string,
 }
 
 export type TrainStops = TrainStop[];
 
 export type Train = {
+  trainId: string,
+  trainCode: string,
+  originStationCode: string,
+  terminalStationCode: string,
   boardStationCode: string,
   alightStationCode: string,
+  boardTime: HourMinuteTime,
+  alightTime: HourMinuteTime,
   trainStops: TrainStops,
   enabled: boolean,
 }

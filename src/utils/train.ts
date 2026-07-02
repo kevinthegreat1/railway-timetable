@@ -1,7 +1,8 @@
 import {CrTrain} from "@/types/cr-types";
 import {MtaStationNames, MtaTimetableTrain} from "@/types/mta-types";
-import {Train} from "@/types/types";
+import {HourMinuteTime, Train} from "@/types/types";
 import {getStationName} from "@/utils/station-names";
+import {unixToHourMinute} from "@/utils/time";
 
 export function isLoaded(train: { trainStops: any[] }) {
   return train.trainStops && train.trainStops.length;
@@ -12,20 +13,41 @@ export function isEnabled(train: { enabled: boolean }) {
 }
 
 export function fromCrTrain(t: CrTrain): Train {
-  return ({boardStationCode: t.trainSummary.from_station_telecode, alightStationCode: t.trainSummary.to_station_telecode, trainStops: t.trainStops.map(s => ({stationName: s.station_name})), enabled: t.enabled});
+  return ({
+    trainId: t.trainSummary.train_no,
+    trainCode: t.trainSummary.station_train_code,
+    originStationCode: t.trainSummary.start_station_telecode,
+    terminalStationCode: t.trainSummary.end_station_telecode,
+    boardStationCode: t.trainSummary.from_station_telecode,
+    alightStationCode: t.trainSummary.to_station_telecode,
+    boardTime: t.trainSummary.start_time as HourMinuteTime,
+    alightTime: t.trainSummary.arrive_time as HourMinuteTime,
+    trainStops: t.trainStops.map(s => ({
+      stationName: s.station_name,
+      stationNo: s.station_no,
+      arriveTime: s.arrive_time as HourMinuteTime,
+      leaveTime: s.start_time as HourMinuteTime,
+      stopoverTime: s.stopover_time,
+    })),
+    enabled: t.enabled
+  });
 }
 
 export function fromMtaTrain(stationNames: MtaStationNames, t: MtaTimetableTrain): Train {
   return {
+    trainId: t.leg.train.train_id,
+    trainCode: t.leg.train.train_num,
+    originStationCode: t.leg.train.details.stops[0].code,
+    terminalStationCode: t.leg.train.details.stops.at(-1)?.code ?? "",
     boardStationCode: t.leg.board,
     alightStationCode: t.leg.alight,
-    trainStops: t.leg.train.details.stops.map(s => {
-      let stationName = getStationName(stationNames, s.code);
-      if (!stationName) {
-        console.warn(`Station name not found for ${s.code} in stations ${stationNames}`);
-      }
-      return {stationName};
-    }),
+    boardTime: unixToHourMinute(t.leg.train.details.stops.find(s => s.code === t.leg.board)!.sched_time, "America/New_York"),
+    alightTime: unixToHourMinute(t.leg.train.details.stops.find(s => s.code === t.leg.alight)!.sched_time, "America/New_York"),
+    trainStops: t.leg.train.details.stops.map(s => ({
+      stationName: getStationName(stationNames, s.code)!,
+      arriveTime: unixToHourMinute(s.sched_time - 60, "America/New_York"),
+      leaveTime: unixToHourMinute(s.sched_time, "America/New_York"),
+    })),
     enabled: t.enabled
   };
 }

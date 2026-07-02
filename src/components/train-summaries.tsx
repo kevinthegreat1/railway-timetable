@@ -1,11 +1,12 @@
-import {CrStationNames, CrTrains} from "@/types/cr-types";
 import {TrainSummaryCard} from "@/components/train-summary-card";
+import {CrStationNames} from "@/types/cr-types";
+import {Trains} from "@/types/types";
 import {isLoaded} from "@/utils/train";
 import {ChangeEventHandler} from "react";
 
 type TrainSummariesProps = {
   stationNames: CrStationNames,
-  trains: CrTrains,
+  trains: Trains,
   getTrainEnabledCallback: (train_no: string) => ChangeEventHandler<HTMLInputElement>,
   generateTimetable: () => void
 };
@@ -20,7 +21,7 @@ export function TrainSummaries({stationNames, trains, getTrainEnabledCallback, g
       <div className="grow overflow-auto scrollbar-hide grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
         {trains.map((train, index) =>
           <div key={index} className="px-2 rounded-xl bg-sky-100">
-            <TrainSummaryCard stationNames={stationNames} train={train} enabledOptionCallback={getTrainEnabledCallback(train.trainSummary.train_no)}/>
+            <TrainSummaryCard stationNames={stationNames} train={train} enabledOptionCallback={getTrainEnabledCallback(train.trainId)}/>
           </div>
         )}
       </div>

@@ -1,17 +1,16 @@
-import {ChangeEventHandler, useState} from "react";
-import {CrStationNames, CrTrains} from "@/types/cr-types";
-import {TrainSummaryCard} from "@/components/train-summary-card";
-import {isEnabled} from "@/utils/train";
 import {CategoryScale, Chart, ChartData, ChartOptions, LineElement, PointElement, TimeScale} from "chart.js";
-import {Line} from "react-chartjs-2";
 import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm"
-import {Station} from "@/types/types";
+import {ChangeEventHandler, useState} from "react";
+import {Line} from "react-chartjs-2";
+import {TrainSummaryCard} from "@/components/train-summary-card";
+import {Station, StationNames, Trains} from "@/types/types";
+import {isEnabled} from "@/utils/train";
 
 type TimetableProps = {
-  stationNames: CrStationNames,
+  stationNames: StationNames,
   date: string,
-  trains: CrTrains,
-  getTrainEnabledCallback: (train_no: string) => ChangeEventHandler<HTMLInputElement>,
+  trains: Trains,
+  getTrainEnabledCallback: (trainId: string) => ChangeEventHandler<HTMLInputElement>,
   sortedStations: string[]
 };
 type TrainStopData = { stationName: string, time: string };
@@ -26,17 +25,17 @@ export function Timetable({stationNames, date, trains, getTrainEnabledCallback, 
   const data: ChartData<"line", TrainStopData[]> = {
     datasets: enabledTrains.map(train => {
       return {
-        label: train.trainSummary.station_train_code,
-        data: train.trainStops.filter(stop => stations.find(({stationName}) => stationName == stop.station_name)?.enabled).flatMap(stop => {
+        label: train.trainCode,
+        data: train.trainStops.filter(stop => stations.find(({stationName}) => stationName == stop.stationName)?.enabled).flatMap(stop => {
           const times: TrainStopData[] = [];
           if (!stop) {
             return times;
           }
-          if (stop.arrive_time && stop.arrive_time.match("\\d+:\\d+")) {
-            times.push({stationName: stop.station_name, time: stop.arrive_time});
+          if (stop.arriveTime && stop.arriveTime.match("\\d+:\\d+")) {
+            times.push({stationName: stop.stationName, time: stop.arriveTime});
           }
-          if (stop.start_time && stop.start_time.match("\\d+:\\d+")) {
-            times.push({stationName: stop.station_name, time: stop.start_time});
+          if (stop.leaveTime && stop.leaveTime.match("\\d+:\\d+")) {
+            times.push({stationName: stop.stationName, time: stop.leaveTime});
           }
           return times;
         }),
@@ -62,7 +61,7 @@ export function Timetable({stationNames, date, trains, getTrainEnabledCallback, 
         type: "category",
         labels: stations.filter(({enabled}) => enabled).map(({stationName}) => stationName)
           .filter((stationName) =>
-            enabledTrains.some(train => train.trainStops.some(stop => stop.station_name == stationName))
+            enabledTrains.some(train => train.trainStops.some(stop => stop.stationName == stationName))
           )
       }
     },
@@ -87,7 +86,7 @@ export function Timetable({stationNames, date, trains, getTrainEnabledCallback, 
       <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
         {trains.map((train, index) =>
           <div key={index} className="px-2 rounded-xl bg-sky-100">
-            <TrainSummaryCard stationNames={stationNames} train={train} showDetail={false} enabledOptionCallback={getTrainEnabledCallback(train.trainSummary.train_no)}/>
+            <TrainSummaryCard stationNames={stationNames} train={train} showDetail={false} enabledOptionCallback={getTrainEnabledCallback(train.trainId)}/>
           </div>
         )}
       </div>
