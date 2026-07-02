@@ -1,21 +1,19 @@
 "use client";
 
 import {useEffect, useState} from "react";
+import {Loading} from "@/components/loading";
+import {RoutesForm} from "@/components/routes-form";
 import {MtaStationNames, MtaTimetableTrains} from "@/types/mta-types";
-import {DatedRoute} from "@/types/types";
+import {DatedRoute, Routes} from "@/types/types";
+import {loadMtaTrains} from "@/utils/mta-utils";
 import {sortStations} from "@/utils/sort-stations";
 import {fromMtaTrain, isLoaded} from "@/utils/train";
-import {Loading} from "@/components/loading";
 
 export default function TimetablePage() {
   const [stationNames, setStationNames] = useState<MtaStationNames>([]);
   useEffect(() => {
     async function fetchStationNames() {
-      const stationNamesResponse = await fetch("https://backend-unified.mylirr.org/infrastructure?language=en", {
-        headers: {
-          "Accept-Version": "3.0",
-        }
-      });
+      const stationNamesResponse = await fetch("https://backend-unified.mylirr.org/infrastructure?language=en", {headers: {"Accept-Version": "3.0"}});
       setStationNames((await stationNamesResponse.json()).stations);
     }
 
@@ -30,6 +28,10 @@ export default function TimetablePage() {
 
   const sortedStations = sortStations(stationNames, timetableRoute, trains.map(t => fromMtaTrain(stationNames, t)));
 
+  function loadTrains(timetableRoute: DatedRoute, routesToSearch: Routes) {
+    loadMtaTrains(timetableRoute, routesToSearch, setTrains);
+  }
+
   if (generateTimetable) {
     if (trains && trains.map(t => ({trainStops: t.leg.train.details.stops})).every(isLoaded) && sortedStations) {
       return (
@@ -40,7 +42,9 @@ export default function TimetablePage() {
     }
   } else {
     return (
-      <div/>
+      <main className="min-h-screen bg-red-50">
+        <RoutesForm timetableRoute={timetableRoute} setTimetableRoute={setTimetableRoute} setLoadTrainSummaries={setGenerateTimetable} stationNames={stationNames} loadTrains={loadTrains}/>
+      </main>
     )
   }
 }

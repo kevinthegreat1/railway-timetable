@@ -6,9 +6,10 @@ import {Timetable} from "@/components/timetable";
 import {TrainSummaries} from "@/components/train-summaries";
 import {Loading} from "@/components/loading";
 import {CrStationNames, CrTrains} from "@/types/cr-types";
-import {DatedRoute} from "@/types/types";
-import {fromCrTrain, isLoaded} from "@/utils/train";
+import {DatedRoute, Routes} from "@/types/types";
+import {getTrainsForAllRoutes} from "@/utils/cr-utils";
 import {sortStations} from "@/utils/sort-stations";
+import {fromCrTrain, isLoaded} from "@/utils/train";
 
 export default function TimetablePage() {
   const [stationNames, setStationNames] = useState<CrStationNames>([]);
@@ -29,6 +30,12 @@ export default function TimetablePage() {
   const [generateTimetable, setGenerateTimetable] = useState<boolean>(false);
 
   const sortedStations = sortStations(stationNames, timetableRoute, trains.map(fromCrTrain));
+
+  function loadTrains(timetableRoute: DatedRoute, routesToSearch: Routes) {
+    fetch(`/china-railway/init`).then(() => {
+      getTrainsForAllRoutes(timetableRoute, routesToSearch, setTrains);
+    })
+  }
 
   function getTrainEnabledCallback(train_no: string): ChangeEventHandler<HTMLInputElement> {
     return e => {
@@ -61,7 +68,7 @@ export default function TimetablePage() {
   } else {
     return (
       <main className="min-h-screen bg-sky-50">
-        <RoutesForm timetableRoute={timetableRoute} setTimetableRoute={setTimetableRoute} setLoadTrainSummaries={setLoadTrainSummaries} stationNames={stationNames} setTrains={setTrains}/>
+        <RoutesForm timetableRoute={timetableRoute} setTimetableRoute={setTimetableRoute} setLoadTrainSummaries={setLoadTrainSummaries} stationNames={stationNames} loadTrains={loadTrains}/>
       </main>
     )
   }
