@@ -1,11 +1,11 @@
-import {StationNames, Trains} from "@/types";
+import {CrStationNames, CrTrains} from "@/types/cr-types";
 import {TrainSummaryCard} from "@/components/train-summary-card";
 import {isLoaded} from "@/utils/train";
 import {ChangeEventHandler} from "react";
 
 type TrainSummariesProps = {
-  stationNames: StationNames,
-  trains: Trains,
+  stationNames: CrStationNames,
+  trains: CrTrains,
   getTrainEnabledCallback: (train_no: string) => ChangeEventHandler<HTMLInputElement>,
   generateTimetable: () => void
 };

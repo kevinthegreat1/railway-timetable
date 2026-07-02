@@ -1,16 +1,17 @@
-import {DatedRoute, Route, Routes, StationNames, Trains, TrainStops, TrainSummary} from "@/types";
+import {CrStationNames, CrTrains, CrTrainStops, CrTrainSummary} from "@/types/cr-types";
 import {ChangeEvent, useState} from "react";
 import RouteEntry from "@/components/route-entry";
 import uniqby from "lodash.uniqby";
 import {getStationCode, getStationName} from "@/utils/station-names";
 import {sleep} from "@/utils/sleep";
+import {DatedRoute, Route, Routes} from "@/types/types";
 
 export type RoutesFormProps = {
   timetableRoute: DatedRoute,
   setTimetableRoute: (timetableRoute: DatedRoute) => void,
   setLoadTrainSummaries: (loading: boolean) => void,
-  stationNames: StationNames,
-  setTrains: (trains: Trains) => void
+  stationNames: CrStationNames,
+  setTrains: (trains: CrTrains) => void
 }
 
 export function RoutesForm({timetableRoute, setTimetableRoute, setLoadTrainSummaries, stationNames, setTrains}: RoutesFormProps) {
@@ -79,7 +80,7 @@ export function RoutesForm({timetableRoute, setTimetableRoute, setLoadTrainSumma
   }
 
   function getTrainsForAllRoutes(date: string) {
-    const promises: Promise<TrainSummary[]>[] = []
+    const promises: Promise<CrTrainSummary[]>[] = []
     promises.push(...getTrainsForRoute(date, timetableRoute));
     routesToSearch.filter((route, index) => route.fromStationCode && route.toStationCode ? true : alert(`路径${index + 1}的出发地和目的地不能为空`))
       .forEach(route => {
@@ -87,7 +88,7 @@ export function RoutesForm({timetableRoute, setTimetableRoute, setLoadTrainSumma
       });
 
     Promise.all(promises).then(async routes => {
-      const trains: Trains = uniqby(routes.flat(), "train_no").map(trainSummary => ({trainSummary, trainStops: [], enabled: true}));
+      const trains: CrTrains = uniqby(routes.flat(), "train_no").map(trainSummary => ({trainSummary, trainStops: [], enabled: true}));
       setTrains(trains);
       return getTrainsDetails(trains);
     });
@@ -102,11 +103,11 @@ export function RoutesForm({timetableRoute, setTimetableRoute, setLoadTrainSumma
     return [forward];
   }
 
-  async function getTrainsForRouteOneWay(date: string, fromStationCode: string, toStationCode: string): Promise<TrainSummary[]> {
+  async function getTrainsForRouteOneWay(date: string, fromStationCode: string, toStationCode: string): Promise<CrTrainSummary[]> {
     return await (await fetch(`/china-railway/trains?leftTicketDTO.train_date=${date}&leftTicketDTO.from_station=${fromStationCode}&leftTicketDTO.to_station=${toStationCode}`)).json();
   }
 
-  async function getTrainsDetails(trains: Trains) {
+  async function getTrainsDetails(trains: CrTrains) {
     for (const train of trains) {
       train.trainStops = await getTrainDetails(train.trainSummary);
       setTrains([...trains]);
@@ -114,7 +115,7 @@ export function RoutesForm({timetableRoute, setTimetableRoute, setLoadTrainSumma
     }
   }
 
-  async function getTrainDetails(trainSummary: TrainSummary): Promise<TrainStops> {
+  async function getTrainDetails(trainSummary: CrTrainSummary): Promise<CrTrainStops> {
     return (await (await fetch(`/china-railway/train-stops?train_no=${trainSummary.train_no}&from_station_telecode=${trainSummary.from_station_telecode}&to_station_telecode=${trainSummary.to_station_telecode}&depart_date=${trainSummary.start_train_date.substring(0, 4)}-${trainSummary.start_train_date.substring(4, 6)}-${trainSummary.start_train_date.substring(6)}`)).json()).data.data;
   }
 

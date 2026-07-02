@@ -1,16 +1,17 @@
 "use client";
 
 import {ChangeEventHandler, useEffect, useState} from "react";
-import {DatedRoute, StationNames, Trains} from "@/types";
 import {RoutesForm} from "@/components/routes-form";
 import {Timetable} from "@/components/timetable";
 import {TrainSummaries} from "@/components/train-summaries";
 import {Loading} from "@/components/loading";
-import {isLoaded} from "@/utils/train";
+import {CrStationNames, CrTrains} from "@/types/cr-types";
+import {DatedRoute} from "@/types/types";
+import {fromCrTrain, isLoaded} from "@/utils/train";
 import {sortStations} from "@/utils/sort-stations";
 
 export default function TimetablePage() {
-  const [stationNames, setStationNames] = useState<StationNames>([]);
+  const [stationNames, setStationNames] = useState<CrStationNames>([]);
   useEffect(() => {
     async function fetchStationNames() {
       const stationNamesResponse = await fetch("/china-railway/station-names");
@@ -23,11 +24,11 @@ export default function TimetablePage() {
 
   const [timetableRoute, setTimetableRoute] = useState<DatedRoute>({bothWays: true, date: new Date().toISOString().split('T')[0]} as DatedRoute);
 
-  const [trains, setTrains] = useState<Trains>([]);
+  const [trains, setTrains] = useState<CrTrains>([]);
   const [loadTrainSummaries, setLoadTrainSummaries] = useState<boolean>(false);
   const [generateTimetable, setGenerateTimetable] = useState<boolean>(false);
 
-  const sortedStations = sortStations(stationNames, timetableRoute, trains);
+  const sortedStations = sortStations(stationNames, timetableRoute, trains.map(fromCrTrain));
 
   function getTrainEnabledCallback(train_no: string): ChangeEventHandler<HTMLInputElement> {
     return e => {

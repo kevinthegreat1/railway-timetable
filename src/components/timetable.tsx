@@ -1,15 +1,16 @@
 import {ChangeEventHandler, useState} from "react";
-import {Station, StationNames, Trains} from "@/types";
+import {CrStationNames, CrTrains} from "@/types/cr-types";
 import {TrainSummaryCard} from "@/components/train-summary-card";
 import {isEnabled} from "@/utils/train";
 import {CategoryScale, Chart, ChartData, ChartOptions, LineElement, PointElement, TimeScale} from "chart.js";
 import {Line} from "react-chartjs-2";
 import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm"
+import {Station} from "@/types/types";
 
 type TimetableProps = {
-  stationNames: StationNames,
+  stationNames: CrStationNames,
   date: string,
-  trains: Trains,
+  trains: CrTrains,
   getTrainEnabledCallback: (train_no: string) => ChangeEventHandler<HTMLInputElement>,
   sortedStations: string[]
 };

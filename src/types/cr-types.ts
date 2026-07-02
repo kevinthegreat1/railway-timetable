@@ -1,4 +1,4 @@
-export type StationName = {
+export type CrStationName = {
   pinyinCode: string,
   name: string,
   code: string,
@@ -12,23 +12,9 @@ export type StationName = {
   cityEn: string,
 }
 
-export type StationNames = StationName[];
+export type CrStationNames = CrStationName[];
 
-export type Route = {
-  fromStation: string,
-  fromStationCode?: string,
-  toStation: string,
-  toStationCode?: string,
-  bothWays: boolean,
-}
-
-export type DatedRoute = Route & {
-  date: string,
-}
-
-export type Routes = Route[];
-
-export type TrainSummary = {
+export type CrTrainSummary = {
   arrive_time: string,
   end_station_telecode: string,
   from_station_telecode: string,
@@ -43,7 +29,7 @@ export type TrainSummary = {
 
 // These fields are probably given by the API but are currently neither parsed nor used.
 // These names are left here as documentation.
-export type TrainSummaryExtended = TrainSummary & {
+export type CrTrainSummaryExtended = CrTrainSummary & {
   controlled_train_flag: string,
   controlled_train_message: string,
   day_difference: string,
@@ -61,7 +47,7 @@ export type TrainSummaryExtended = TrainSummary & {
   yp_info_coverFlag: string,
 }
 
-export type TrainStop = {
+export type CrTrainStop = {
   arrive_time: string,
   station_name: string,
   isChina: string,
@@ -73,17 +59,12 @@ export type TrainStop = {
   isEnabled: boolean,
 }
 
-export type TrainStops = TrainStop[];
+export type CrTrainStops = CrTrainStop[];
 
-export type Train = {
-  trainSummary: TrainSummary,
-  trainStops: TrainStops,
+export type CrTrain = {
+  trainSummary: CrTrainSummary,
+  trainStops: CrTrainStops,
   enabled: boolean
 }
 
-export type Trains = Train[];
-
-export type Station = {
-  stationName: string,
-  enabled: boolean
-}
+export type CrTrains = CrTrain[];

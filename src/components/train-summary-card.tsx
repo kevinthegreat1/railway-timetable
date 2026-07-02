@@ -1,10 +1,10 @@
 import {ChangeEventHandler} from "react";
-import {StationNames, Train} from "@/types";
+import {CrStationNames, CrTrain} from "@/types/cr-types";
 import {getStationName} from "@/utils/station-names";
 
 type TrainSummaryCardProps = {
-  stationNames: StationNames,
-  train: Train,
+  stationNames: CrStationNames,
+  train: CrTrain,
   showDetail?: boolean,
   enabledOption?: boolean,
   enabledOptionCallback?: ChangeEventHandler<HTMLInputElement>,
