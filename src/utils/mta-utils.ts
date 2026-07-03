@@ -1,7 +1,7 @@
 import uniqby from "lodash.uniqby";
 import {MtaLeg, MtaTimetableTrains} from "@/types/mta-types";
 import {DatedRoute, Route, Routes} from "@/types/types";
-import {dateToUnix} from "@/utils/time";
+import {dateToUnix, sleep} from "@/utils/time";
 
 export function loadMtaTrains(timetableRoute: DatedRoute, routesToSearch: Routes, setTrains: (trains: MtaTimetableTrains) => void) {
   const promises: Promise<MtaTimetableTrains>[] = [];
@@ -21,19 +21,20 @@ function getTrainsForRoute(date: string, route: Route) {
   const forward = getTrainsForRouteOneWay(date, route.fromStationCode!, route.toStationCode!);
   if (route.bothWays) {
     const backward = getTrainsForRouteOneWay(date, route.toStationCode!, route.fromStationCode!);
-    return [...forward, ...backward];
+    return [forward, backward];
   }
-  return forward;
+  return [forward];
 }
 
-function getTrainsForRouteOneWay(date: string, fromStationCode: string, toStationCode: string): Promise<MtaTimetableTrains>[] {
-  const promises: Promise<MtaTimetableTrains>[] = [];
+async function getTrainsForRouteOneWay(date: string, fromStationCode: string, toStationCode: string): Promise<MtaTimetableTrains> {
+  const trains: MtaTimetableTrains = [];
 
   for (let hour = 0; hour < 24; hour += 2) {
-    promises.push(getTrainsForRouteOneWayAt(dateToUnix(date, "America/New_York").add(hour, "hour").unix(), fromStationCode, toStationCode));
+    trains.push(...await getTrainsForRouteOneWayAt(dateToUnix(date, "America/New_York").add(hour, "hour").unix(), fromStationCode, toStationCode));
+    await sleep(500);
   }
 
-  return promises;
+  return trains;
 }
 
 async function getTrainsForRouteOneWayAt(unixTime: number, fromStationCode: string, toStationCode: string): Promise<MtaTimetableTrains> {

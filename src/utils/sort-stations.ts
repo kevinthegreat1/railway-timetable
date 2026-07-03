@@ -6,7 +6,7 @@ import {DatedRoute, StationNames, Trains, TrainStops} from "@/types/types";
 /**
  * Combines the stops from all trains into a single list of stations using a topological sort.
  */
-export function sortStations(stationNames: StationNames, timetableRoute: DatedRoute, trains: Trains) {
+export function sortStations(stationNames: StationNames, timetableRoute: DatedRoute, trains?: Trains) {
   if (!trains || !trains.length) {
     return [];
   }

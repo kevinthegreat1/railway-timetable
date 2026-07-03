@@ -24,7 +24,7 @@ export default function TimetablePage() {
 
   const [timetableRoute, setTimetableRoute] = useState<DatedRoute>({bothWays: true, date: new Date().toISOString().split('T')[0]} as DatedRoute);
 
-  const [trains, setTrains] = useState<Trains>([]);
+  const [trains, setTrains] = useState<Trains | undefined>(undefined);
   const [generateTimetable, setGenerateTimetable] = useState<boolean>(false);
 
   const sortedStations = sortStations(stationNames, timetableRoute, trains);
@@ -35,6 +35,7 @@ export default function TimetablePage() {
 
   function getTrainEnabledCallback(trainId: string): ChangeEventHandler<HTMLInputElement> {
     return e => {
+      if (!trains) return;
       const newTrains = [...trains];
       newTrains.find(t => t.trainId === trainId)!.enabled = e.target.checked;
       setTrains(newTrains);
@@ -49,7 +50,7 @@ export default function TimetablePage() {
         </main>
       )
     } else {
-      return <Loading loadingText={`${trains.filter(isLoaded).length}/${trains.length}列`}/>
+      return <Loading loadingText={trains && `${trains.filter(isLoaded).length}/${trains.length}列`}/>
     }
   } else {
     return (
