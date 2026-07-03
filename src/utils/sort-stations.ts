@@ -1,7 +1,7 @@
-import {isEnabled, isLoaded} from "@/utils/train";
 import toposort from "toposort";
-import {getStationName} from "@/utils/station-names";
 import {DatedRoute, StationNames, Trains, TrainStops} from "@/types/types";
+import {areStationsEqual, getStationName} from "@/utils/station-names";
+import {isEnabled, isLoaded} from "@/utils/train";
 
 /**
  * Combines the stops from all trains into a single list of stations using a topological sort.
@@ -15,10 +15,10 @@ export function sortStations(stationNames: StationNames, timetableRoute: DatedRo
   // Loop through all trains with stops loaded and add the stations to the graph
   for (const train of trains.filter(isLoaded).filter(isEnabled)) {
     let trainStops;
-    if (train.boardStationCode === timetableRoute.fromStationCode && train.alightStationCode === timetableRoute.toStationCode) {
+    if (areStationsEqual(stationNames, train.boardStationCode, timetableRoute.fromStationCode) && areStationsEqual(stationNames, train.alightStationCode, timetableRoute.toStationCode)) {
       // Train stops are already in the correct order
       trainStops = trimStops(stationNames, train.trainStops, timetableRoute);
-    } else if (train.boardStationCode === timetableRoute.toStationCode && train.alightStationCode === timetableRoute.fromStationCode) {
+    } else if (areStationsEqual(stationNames, train.boardStationCode, timetableRoute.toStationCode) && areStationsEqual(stationNames, train.alightStationCode, timetableRoute.fromStationCode)) {
       // Train stops are in the reverse order
       trainStops = trimStops(stationNames, train.trainStops.toReversed(), timetableRoute);
     }

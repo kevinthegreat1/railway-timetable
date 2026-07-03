@@ -11,3 +11,7 @@ export function getStationCode(stationNames: StationNames, stationName: string) 
 export function getStationName(stationNames: StationNames, stationCode?: string) {
   return stationNames.find(station => station.code === stationCode)?.name;
 }
+
+export function areStationsEqual(stationNames: StationNames, stationCode1?: string, stationCode2?: string) {
+  return stationCode1 === stationCode2 || getStationName(stationNames, stationCode1) === getStationName(stationNames, stationCode2);
+}
