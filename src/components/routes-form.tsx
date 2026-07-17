@@ -2,6 +2,7 @@ import {ChangeEvent, useState} from "react";
 import RouteEntry from "@/components/route-entry";
 import {DatedRoute, Route, Routes, StationNames} from "@/types/types";
 import {getStationCode, getStationName} from "@/utils/station-names";
+import {TailwindColorBg, TailwindColorDivide} from "@/types/color";
 
 export type RoutesFormProps = {
   timetableRoute: DatedRoute,
@@ -9,9 +10,12 @@ export type RoutesFormProps = {
   setLoadTrainSummaries: (loading: boolean) => void,
   stationNames: StationNames,
   loadTrains: (timetableRoute: DatedRoute, routesToSearch: Routes) => void,
-}
+  colorBg: TailwindColorBg,
+  colorFg: TailwindColorBg,
+  colorDivide: TailwindColorDivide,
+};
 
-export function RoutesForm({timetableRoute, setTimetableRoute, setLoadTrainSummaries, stationNames, loadTrains}: RoutesFormProps) {
+export function RoutesForm({timetableRoute, setTimetableRoute, setLoadTrainSummaries, stationNames, loadTrains, colorBg, colorFg, colorDivide}: RoutesFormProps) {
   const [routesToSearch, setRoutesToSearch] = useState<Routes>([{bothWays: true} as Route]);
 
   function getStationTextCallback(toStation: boolean, index: number) {
@@ -76,7 +80,7 @@ export function RoutesForm({timetableRoute, setTimetableRoute, setLoadTrainSumma
 
   return (
     <div className="flex flex-col items-stretch justify-between p-4">
-      <div className="m-4 px-4 divide-y rounded-3xl bg-sky-100 divide-blue-200">
+      <div className={`m-4 px-4 divide-y rounded-3xl ${colorBg} ${colorDivide}`}>
         <div className="py-4 text-center text-xl">路线</div>
         <div className="py-2">
           <RouteEntry
@@ -85,12 +89,12 @@ export function RoutesForm({timetableRoute, setTimetableRoute, setLoadTrainSumma
             date={timetableRoute.date} dateCallback={dateCallback} bothWays={timetableRoute.bothWays} bothWaysCallback={getBothWaysCallback(-1)}/>
         </div>
       </div>
-      <ul className="m-4 px-4 divide-y rounded-3xl bg-sky-100 divide-blue-200">
+      <ul className={`m-4 px-4 divide-y rounded-3xl ${colorBg} ${colorDivide}`}>
         <li className="py-4 flex items-center">
           <div className="grow basis-0"></div>
           <div className="text-xl">路径</div>
           <div className="grow basis-0 flex justify-end">
-            <button onClick={newRouteToSearch} className="w-8 h-8 rounded-full text-lg bg-sky-200">+</button>
+            <button onClick={newRouteToSearch} className={`w-8 h-8 rounded-full text-lg ${colorFg}`}>+</button>
           </div>
         </li>
         {routesToSearch.map((route, index) =>
@@ -101,7 +105,7 @@ export function RoutesForm({timetableRoute, setTimetableRoute, setLoadTrainSumma
           /></li>
         )}
       </ul>
-      <button onClick={submitRoutes} className="self-center px-6 py-2 rounded-full text-lg bg-sky-200">生成</button>
+      <button onClick={submitRoutes} className={`self-center px-6 py-2 rounded-full text-lg ${colorFg}`}>生成</button>
     </div>
   )
 }

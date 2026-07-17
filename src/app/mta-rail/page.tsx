@@ -46,16 +46,16 @@ export default function TimetablePage() {
     if (trains && trains.every(isLoaded) && sortedStations) {
       return (
         <main className="min-h-screen bg-red-50">
-          <Timetable stationNames={stationNames} date={timetableRoute.date} trains={trains} getTrainEnabledCallback={getTrainEnabledCallback} sortedStations={sortedStations} key={sortedStations.join(',')}/>
+          <Timetable stationNames={stationNames} date={timetableRoute.date} trains={trains} getTrainEnabledCallback={getTrainEnabledCallback} sortedStations={sortedStations} key={sortedStations.join(',')} colorBg="bg-red-100" colorDivide="divide-red-200"/>
         </main>
       )
     } else {
-      return <Loading loadingText={trains && `${trains.filter(isLoaded).length}/${trains.length}列`}/>
+      return <Loading loadingText={trains && `${trains.filter(isLoaded).length}/${trains.length}列`} colorBg="bg-red-50" colorFg="bg-red-100"/>
     }
   } else {
     return (
       <main className="min-h-screen bg-red-50">
-        <RoutesForm timetableRoute={timetableRoute} setTimetableRoute={setTimetableRoute} setLoadTrainSummaries={setGenerateTimetable} stationNames={stationNames} loadTrains={loadTrains}/>
+        <RoutesForm timetableRoute={timetableRoute} setTimetableRoute={setTimetableRoute} setLoadTrainSummaries={setGenerateTimetable} stationNames={stationNames} loadTrains={loadTrains} colorBg="bg-red-100" colorFg="bg-red-200" colorDivide="divide-red-200"/>
       </main>
     )
   }

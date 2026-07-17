@@ -49,26 +49,26 @@ export default function TimetablePage() {
     if (trains && trains.every(isLoaded) && sortedStations) {
       return (
         <main className="min-h-screen bg-sky-50">
-          <Timetable stationNames={stationNames} date={timetableRoute.date} trains={trains} getTrainEnabledCallback={getTrainEnabledCallback} sortedStations={sortedStations} key={sortedStations.join(',')}/> {/* Pass a key to ensure the station enabled states are reset in timetable for every different list of sorted stations. */}
+          <Timetable stationNames={stationNames} date={timetableRoute.date} trains={trains} getTrainEnabledCallback={getTrainEnabledCallback} sortedStations={sortedStations} key={sortedStations.join(',')} colorBg="bg-sky-100" colorDivide="divide-blue-200"/> {/* Pass a key to ensure the station enabled states are reset in timetable for every different list of sorted stations. */}
         </main>
       )
     } else {
-      return <Loading loadingText={`${trains.filter(isLoaded).length}/${trains.length}列`}/>
+      return <Loading loadingText={`${trains.filter(isLoaded).length}/${trains.length}列`} colorBg="bg-sky-50" colorFg="bg-sky-100"/>
     }
   } else if (loadTrainSummaries) {
     if (trains && trains.length) {
       return (
         <main className="min-h-screen bg-sky-50">
-          <TrainSummaries stationNames={stationNames} trains={trains} getTrainEnabledCallback={getTrainEnabledCallback} generateTimetable={() => setGenerateTimetable(true)}/>
+          <TrainSummaries stationNames={stationNames} trains={trains} getTrainEnabledCallback={getTrainEnabledCallback} generateTimetable={() => setGenerateTimetable(true)} colorBg="bg-sky-100" colorFg="bg-sky-200" colorDivide="divide-blue-200"/>
         </main>
       )
     } else {
-      return <Loading/>
+      return <Loading colorBg="bg-sky-50" colorFg="bg-sky-100"/>
     }
   } else {
     return (
       <main className="min-h-screen bg-sky-50">
-        <RoutesForm timetableRoute={timetableRoute} setTimetableRoute={setTimetableRoute} setLoadTrainSummaries={setLoadTrainSummaries} stationNames={stationNames} loadTrains={loadTrains}/>
+        <RoutesForm timetableRoute={timetableRoute} setTimetableRoute={setTimetableRoute} setLoadTrainSummaries={setLoadTrainSummaries} stationNames={stationNames} loadTrains={loadTrains} colorBg="bg-sky-100" colorFg="bg-sky-200" colorDivide="divide-blue-200"/>
       </main>
     )
   }

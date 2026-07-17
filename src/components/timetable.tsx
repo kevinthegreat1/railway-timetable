@@ -5,17 +5,20 @@ import {Line} from "react-chartjs-2";
 import {TrainSummaryCard} from "@/components/train-summary-card";
 import {Station, StationNames, Trains} from "@/types/types";
 import {isEnabled} from "@/utils/train";
+import {TailwindColorBg, TailwindColorDivide} from "@/types/color";
 
 type TimetableProps = {
   stationNames: StationNames,
   date: string,
   trains: Trains,
   getTrainEnabledCallback: (trainId: string) => ChangeEventHandler<HTMLInputElement>,
-  sortedStations: string[]
+  sortedStations: string[],
+  colorBg: TailwindColorBg,
+  colorDivide: TailwindColorDivide,
 };
 type TrainStopData = { stationName: string, time: string };
 
-export function Timetable({stationNames, date, trains, getTrainEnabledCallback, sortedStations}: TimetableProps) {
+export function Timetable({stationNames, date, trains, getTrainEnabledCallback, sortedStations, colorBg, colorDivide }: TimetableProps) {
   Chart.register(CategoryScale, LineElement, PointElement, TimeScale);
 
   const [stations, setStations] = useState<Station[]>(sortedStations.map(stationName => ({stationName, enabled: true})));
@@ -85,15 +88,15 @@ export function Timetable({stationNames, date, trains, getTrainEnabledCallback, 
       <div className="text-lg">列车（{trainsText}）</div>
       <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
         {trains.map((train, index) =>
-          <div key={index} className="px-2 rounded-xl bg-sky-100">
-            <TrainSummaryCard stationNames={stationNames} train={train} showDetail={false} enabledOptionCallback={getTrainEnabledCallback(train.trainId)}/>
+          <div key={index} className={`px-2 rounded-xl ${colorBg}`}>
+            <TrainSummaryCard stationNames={stationNames} train={train} showDetail={false} enabledOptionCallback={getTrainEnabledCallback(train.trainId)} colorDivide={colorDivide}/>
           </div>
         )}
       </div>
       <div className="text-lg">站点</div>
       <div className="flex flex-wrap gap-4">
         {stations.map(({stationName, enabled}, index) =>
-          <div key={stationName} className="p-2 rounded-xl bg-sky-100 flex flex-row gap-2">
+          <div key={stationName} className={`p-2 rounded-xl ${colorBg} flex flex-row gap-2`}>
             <div>{stationName}</div>
             <input id="enabled" type="checkbox" checked={enabled} onChange={getStationEnabledCallback(index)}/>
           </div>

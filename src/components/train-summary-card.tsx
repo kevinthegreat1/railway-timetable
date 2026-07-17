@@ -1,6 +1,7 @@
 import {ChangeEventHandler} from "react";
 import {StationNames, Train} from "@/types/types";
 import {getStationName} from "@/utils/station-names";
+import {TailwindColorDivide} from "@/types/color";
 
 type TrainSummaryCardProps = {
   stationNames: StationNames,
@@ -8,13 +9,14 @@ type TrainSummaryCardProps = {
   showDetail?: boolean,
   enabledOption?: boolean,
   enabledOptionCallback?: ChangeEventHandler<HTMLInputElement>,
+  colorDivide: TailwindColorDivide,
 };
 
-export function TrainSummaryCard({stationNames, train, showDetail = true, enabledOption = true, enabledOptionCallback = () => {}}: TrainSummaryCardProps) {
+export function TrainSummaryCard({stationNames, train, showDetail = true, enabledOption = true, enabledOptionCallback = () => {}, colorDivide}: TrainSummaryCardProps) {
   const {trainStops} = train;
 
   return (
-    <div className="divide-y text-center divide-blue-200">
+    <div className={`divide-y text-center ${colorDivide}`}>
       <div className="py-2 flex items-center">
         <div className="grow basis-0"></div>
         <div className="text-lg">{train.trainCode}</div>
