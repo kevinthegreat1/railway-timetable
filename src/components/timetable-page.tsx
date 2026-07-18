@@ -55,7 +55,7 @@ export default function TimetablePage({fetchStationNames, loadTrains, loadTrainS
     if (trains && trains.length) {
       return (
         <main className={`min-h-screen ${colorBg}`}>
-          <TrainSummaries stationNames={stationNames} trains={trains} getTrainEnabledCallback={getTrainEnabledCallback} generateTimetable={() => setGenerateTimetable(true)} colorBg={colorMg} colorFg={colorFg} colorDivide={colorDivide}/>
+          <TrainSummaries stationNames={stationNames} trains={trains} getTrainEnabledCallback={getTrainEnabledCallback} generateTimetable={() => setGenerateTimetable(true)} showDetail={true} colorBg={colorMg} colorFg={colorFg} colorDivide={colorDivide}/>
         </main>
       )
     } else {

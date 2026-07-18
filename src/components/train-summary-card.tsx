@@ -7,13 +7,13 @@ import {isLoaded} from "@/utils/train";
 type TrainSummaryCardProps = {
   stationNames: StationNames,
   train: Train,
-  showDetail?: boolean,
+  showDetail: boolean,
   enabledOption?: boolean,
   enabledOptionCallback?: ChangeEventHandler<HTMLInputElement>,
   colorDivide: TailwindColorDivide,
 };
 
-export function TrainSummaryCard({stationNames, train, showDetail = true, enabledOption = true, enabledOptionCallback = () => {}, colorDivide}: TrainSummaryCardProps) {
+export function TrainSummaryCard({stationNames, train, showDetail, enabledOption = true, enabledOptionCallback = () => {}, colorDivide}: TrainSummaryCardProps) {
   const {trainStops} = train;
 
   return (

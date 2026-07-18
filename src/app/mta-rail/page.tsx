@@ -14,7 +14,7 @@ export default function MtaTimetablePage() {
   const [generateTimetable, setGenerateTimetable] = useState<boolean>(false);
 
   const loadTrains: LoadTrains = (stationNames, setTrains) => (timetableRoute, routesToSearch) => {
-    loadMtaTrains(timetableRoute, routesToSearch, mtaTrains => setTrains(mtaTrains.map(t => fromMtaTrain(stationNames, t))));
+    void loadMtaTrains(timetableRoute, routesToSearch, mtaTrains => setTrains(mtaTrains.map(t => fromMtaTrain(stationNames, t))));
   }
 
   return <TimetablePage fetchStationNames={fetchStationNames} loadTrains={loadTrains}

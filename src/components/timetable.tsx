@@ -2,7 +2,7 @@ import {CategoryScale, Chart, ChartData, ChartOptions, LineElement, PointElement
 import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm"
 import {ChangeEventHandler, useState} from "react";
 import {Line} from "react-chartjs-2";
-import {TrainSummaryCard} from "@/components/train-summary-card";
+import {TrainSummariesCard} from "@/components/train-summaries";
 import {TailwindColorBg, TailwindColorDivide} from "@/types/color";
 import {Station, StationNames, Trains} from "@/types/types";
 import {millisToHourMinute} from "@/utils/time";
@@ -93,13 +93,7 @@ export function Timetable({stationNames, date, trains, getTrainEnabledCallback, 
       <div className="text-xl">运行图 {date}</div>
       <div className="text-lg">列车（{trainsText}）</div>
       {loadedTrains.length !== trains.length && <div className="text-lg">{trainsLoadingText}</div>}
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-        {trains.map((train, index) =>
-          <div key={index} className={`px-2 rounded-xl ${colorBg}`}>
-            <TrainSummaryCard stationNames={stationNames} train={train} showDetail={false} enabledOptionCallback={getTrainEnabledCallback(train.trainId)} colorDivide={colorDivide}/>
-          </div>
-        )}
-      </div>
+      <TrainSummariesCard stationNames={stationNames} trains={trains} getTrainEnabledCallback={getTrainEnabledCallback} showDetail={false} overflowAuto={false} colorBg={colorBg} colorDivide={colorDivide}/>
       <div className="text-lg">站点</div>
       <div className="flex flex-wrap gap-4">
         {stations.map(({stationName, enabled}, index) =>
