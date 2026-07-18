@@ -1,6 +1,6 @@
 import {CrTrain} from "@/types/cr-types";
-import {MtaStationNames, MtaTimetableTrain} from "@/types/mta-types";
-import {HourMinuteTime, Train} from "@/types/types";
+import {MtaTimetableTrain} from "@/types/mta-types";
+import {HourMinuteTime, StationNames, Train} from "@/types/types";
 import {getStationName} from "@/utils/station-names";
 import {unixToHourMinute} from "@/utils/time";
 
@@ -33,7 +33,7 @@ export function fromCrTrain(t: CrTrain): Train {
   });
 }
 
-export function fromMtaTrain(stationNames: MtaStationNames, t: MtaTimetableTrain): Train {
+export function fromMtaTrain(stationNames: StationNames, t: MtaTimetableTrain): Train {
   return {
     trainId: t.leg.train.train_id,
     trainCode: t.leg.train.train_num,

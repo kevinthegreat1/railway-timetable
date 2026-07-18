@@ -1,7 +1,8 @@
+import {AmtrakStationNames} from "@/types/amtrak-types";
 import {CrStationNames} from "@/types/cr-types";
 import {MtaStationNames} from "@/types/mta-types";
 
-export type StationNames = CrStationNames | MtaStationNames;
+export type StationNames = AmtrakStationNames | CrStationNames | MtaStationNames;
 
 export type Route = {
   fromStation: string,

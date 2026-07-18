@@ -1,12 +1,11 @@
 import {TrainSummaryCard} from "@/components/train-summary-card";
-import {CrStationNames} from "@/types/cr-types";
-import {Trains} from "@/types/types";
+import {StationNames, Trains} from "@/types/types";
 import {isLoaded} from "@/utils/train";
 import {ChangeEventHandler} from "react";
 import {TailwindColorBg, TailwindColorDivide} from "@/types/color";
 
 type TrainSummariesProps = {
-  stationNames: CrStationNames,
+  stationNames: StationNames,
   trains: Trains,
   getTrainEnabledCallback: (train_no: string) => ChangeEventHandler<HTMLInputElement>,
   generateTimetable: () => void,

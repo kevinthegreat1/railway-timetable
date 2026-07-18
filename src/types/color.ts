@@ -1,4 +1,4 @@
-type Color = "red" | "sky" | "blue";
+type Color = "red" | "teal" | "sky" | "blue";
 
 type ColorShade = `${Color}-${number}0`;
 

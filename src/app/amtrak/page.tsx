@@ -2,25 +2,20 @@
 
 import {useState} from "react";
 import TimetablePage, {LoadTrains} from "@/components/timetable-page";
-import {getTrainsForAllRoutes} from "@/utils/cr-utils";
 
-export default function CrTimetablePage() {
+export default function AmtrakTimetablePage() {
   async function fetchStationNames() {
-    const stationNamesResponse = await fetch("/china-railway/station-names");
+    const stationNamesResponse = await fetch("https://www.amtrak.com/services/data.stations.json");
     return await stationNamesResponse.json();
   }
 
   const [loadTrainSummaries, setLoadTrainSummaries] = useState<boolean>(false);
   const [generateTimetable, setGenerateTimetable] = useState<boolean>(false);
 
-  const loadTrains: LoadTrains = (_, setTrains) => (timetableRoute, routesToSearch) => {
-    fetch(`/china-railway/init`).then(() => {
-      getTrainsForAllRoutes(timetableRoute, routesToSearch, setTrains);
-    })
-  }
+  const loadTrains: LoadTrains = (_, setTrains) => (timetableRoute, routesToSearch) => {}
 
   return <TimetablePage fetchStationNames={fetchStationNames} loadTrains={loadTrains}
                         loadTrainSummaries={loadTrainSummaries} setLoadTrainSummaries={setLoadTrainSummaries}
                         generateTimetable={generateTimetable} setGenerateTimetable={setGenerateTimetable}
-                        colorBg="bg-sky-50" colorMg="bg-sky-100" colorFg="bg-sky-200" colorDivide="divide-sky-200"/>
+                        colorBg="bg-teal-50" colorMg="bg-teal-100" colorFg="bg-teal-200" colorDivide="divide-teal-200"/>
 }
