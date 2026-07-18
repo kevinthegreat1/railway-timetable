@@ -3,9 +3,10 @@ import "chartjs-adapter-dayjs-4/dist/chartjs-adapter-dayjs-4.esm"
 import {ChangeEventHandler, useState} from "react";
 import {Line} from "react-chartjs-2";
 import {TrainSummaryCard} from "@/components/train-summary-card";
-import {Station, StationNames, Trains} from "@/types/types";
-import {isEnabled, isLoaded} from "@/utils/train";
 import {TailwindColorBg, TailwindColorDivide} from "@/types/color";
+import {Station, StationNames, Trains} from "@/types/types";
+import {millisToHourMinute} from "@/utils/time";
+import {isEnabled, isLoaded} from "@/utils/train";
 
 type TimetableProps = {
   stationNames: StationNames,
@@ -60,6 +61,9 @@ export function Timetable({stationNames, date, trains, getTrainEnabledCallback, 
           displayFormats: {
             minute: "HH:mm"
           }
+        },
+        ticks: {
+          callback: (value) => [0, 15, 30, 45].includes(new Date(value).getMinutes()) ? typeof value === "string" ? value : millisToHourMinute(value) : null
         }
       },
       y: {

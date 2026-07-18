@@ -10,8 +10,12 @@ export function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export function unixToHourMinute(timestamp: number, timeZone: string): HourMinuteTime {
-  const date = new Date(timestamp * 1000);
+export function unixToHourMinute(timestamp: number, timeZone?: string): HourMinuteTime {
+  return millisToHourMinute(timestamp * 1000, timeZone);
+}
+
+export function millisToHourMinute(timestamp: number, timeZone?: string): HourMinuteTime {
+  const date = new Date(timestamp);
   const formatter = new Intl.DateTimeFormat('en-US', {
     timeZone,
     hour: "2-digit",
