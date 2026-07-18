@@ -4,7 +4,7 @@ import {ChangeEventHandler, useState} from "react";
 import {Line} from "react-chartjs-2";
 import {TrainSummaryCard} from "@/components/train-summary-card";
 import {Station, StationNames, Trains} from "@/types/types";
-import {isEnabled} from "@/utils/train";
+import {isEnabled, isLoaded} from "@/utils/train";
 import {TailwindColorBg, TailwindColorDivide} from "@/types/color";
 
 type TimetableProps = {
@@ -23,7 +23,9 @@ export function Timetable({stationNames, date, trains, getTrainEnabledCallback, 
 
   const [stations, setStations] = useState<Station[]>(sortedStations.map(stationName => ({stationName, enabled: true})));
   const enabledTrains = trains.filter(isEnabled);
+  const loadedTrains = trains.filter(isLoaded);
   const trainsText = `显示 ${enabledTrains.length}/${trains.length}列`;
+  const trainsLoadingText = `加载中 ${loadedTrains.length}/${trains.length}列`
 
   const data: ChartData<"line", TrainStopData[]> = {
     datasets: enabledTrains.map(train => {
@@ -86,6 +88,7 @@ export function Timetable({stationNames, date, trains, getTrainEnabledCallback, 
     <div className="flex flex-col items-center p-4 gap-4">
       <div className="text-xl">运行图 {date}</div>
       <div className="text-lg">列车（{trainsText}）</div>
+      {loadedTrains.length !== trains.length && <div className="text-lg">{trainsLoadingText}</div>}
       <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
         {trains.map((train, index) =>
           <div key={index} className={`px-2 rounded-xl ${colorBg}`}>

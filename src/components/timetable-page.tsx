@@ -42,7 +42,7 @@ export default function TimetablePage({fetchStationNames, loadTrains, loadTrainS
   }
 
   if (generateTimetable) {
-    if (trains && trains.every(isLoaded) && sortedStations) {
+    if (trains && sortedStations) {
       return (
         <main className={`min-h-screen ${colorBg}`}>
           <Timetable stationNames={stationNames} date={timetableRoute.date} trains={trains} getTrainEnabledCallback={getTrainEnabledCallback} sortedStations={sortedStations} key={sortedStations.join(',')} colorBg={colorMg} colorDivide={colorDivide}/>
@@ -59,7 +59,7 @@ export default function TimetablePage({fetchStationNames, loadTrains, loadTrainS
         </main>
       )
     } else {
-      return <Loading colorBg="bg-sky-50" colorFg="bg-sky-100"/>
+      return <Loading colorBg={colorBg} colorFg={colorMg}/>
     }
   } else {
     return (

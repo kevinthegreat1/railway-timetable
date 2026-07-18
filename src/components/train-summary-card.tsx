@@ -2,6 +2,7 @@ import {ChangeEventHandler} from "react";
 import {StationNames, Train} from "@/types/types";
 import {getStationName} from "@/utils/station-names";
 import {TailwindColorDivide} from "@/types/color";
+import {isLoaded} from "@/utils/train";
 
 type TrainSummaryCardProps = {
   stationNames: StationNames,
@@ -18,7 +19,9 @@ export function TrainSummaryCard({stationNames, train, showDetail = true, enable
   return (
     <div className={`divide-y text-center ${colorDivide}`}>
       <div className="py-2 flex items-center">
-        <div className="grow basis-0"></div>
+        <div className="grow basis-0">
+          {!isLoaded(train) && <div>加载中...</div>}
+        </div>
         <div className="text-lg">{train.trainCode}</div>
         <div className="grow basis-0">
           {enabledOption && <input type="checkbox" checked={train.enabled} onChange={enabledOptionCallback}/>}
