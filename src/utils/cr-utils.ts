@@ -4,28 +4,39 @@ import {DatedRoute, Route, Routes, Trains} from "@/types/types";
 import {sleep} from "@/utils/time";
 import {fromCrTrain} from "@/utils/train";
 
-export function getTrainsForAllRoutes(timetableRoute: DatedRoute, routesToSearch: Routes, setTrains: (trains: Trains) => void) {
-  const promises: Promise<CrTrainSummary[]>[] = [];
-  promises.push(...getTrainsForRoute(timetableRoute.date, timetableRoute));
-  routesToSearch.filter((route, index) => route.fromStationCode && route.toStationCode ? true : alert(`路径${index + 1}的出发地和目的地不能为空`))
-    .forEach(route => {
-      promises.push(...getTrainsForRoute(timetableRoute.date, route));
-    });
+export async function getTrainsForAllRoutes(timetableRoute: DatedRoute, routesToSearch: Routes, setTrains: (trains: Trains) => void) {
+  const stations = new Set([
+    timetableRoute.fromStationCode!,
+    timetableRoute.toStationCode!,
+    ...routesToSearch.flatMap(route => [route.fromStationCode!, route.toStationCode!])
+  ]);
+  let trains: CrTrains = [];
 
-  Promise.all(promises).then(async routes => {
-    const trains: CrTrains = uniqby(routes.flat(), "train_no").map(trainSummary => ({trainSummary, trainStops: [], enabled: true}));
+  function onTrainSummaries(newTrainSummaries: CrTrainSummary[]) {
+    trains.push(...newTrainSummaries.filter(getTrainFilter(stations)).map(trainSummary => ({trainSummary, trainStops: [], enabled: true})));
+    trains = uniqby(trains, "trainSummary.train_no");
     setTrains(trains.map(fromCrTrain));
-    return getTrainsDetails(trains, setTrains);
-  });
+  }
+
+  await getTrainsForRoute(timetableRoute.date, timetableRoute, onTrainSummaries);
+  for (const route of routesToSearch.filter((route, index) => route.fromStationCode && route.toStationCode ? true : alert(`路径${index + 1}的出发地和目的地不能为空`))) {
+    await getTrainsForRoute(timetableRoute.date, route, onTrainSummaries);
+  }
+
+  return getTrainsDetails(trains, setTrains);
 }
 
-function getTrainsForRoute(date: string, route: Route) {
-  const forward = getTrainsForRouteOneWay(date, route.fromStationCode!, route.toStationCode!);
+function getTrainFilter(stations: Set<string>): (train: CrTrainSummary) => boolean {
+  return train => stations.has(train.from_station_telecode) && stations.has(train.to_station_telecode);
+}
+
+async function getTrainsForRoute(date: string, route: Route, onTrainSummaries: (trainSummaries: CrTrainSummary[]) => void) {
+  onTrainSummaries(await getTrainsForRouteOneWay(date, route.fromStationCode!, route.toStationCode!));
+  await sleep(500);
   if (route.bothWays) {
-    const backward = getTrainsForRouteOneWay(date, route.toStationCode!, route.fromStationCode!);
-    return [forward, backward];
+    onTrainSummaries(await getTrainsForRouteOneWay(date, route.toStationCode!, route.fromStationCode!));
+    await sleep(500);
   }
-  return [forward];
 }
 
 async function getTrainsForRouteOneWay(date: string, fromStationCode: string, toStationCode: string): Promise<CrTrainSummary[]> {

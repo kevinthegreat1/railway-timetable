@@ -22,7 +22,7 @@ export type HourMinuteTime = `${number}:${number}`;
 
 export type TrainStop = {
   stationName: string,
-  stationNo?: string,
+  stationNo: number,
   arriveTime: HourMinuteTime,
   leaveTime: HourMinuteTime,
   stopoverTime?: string,

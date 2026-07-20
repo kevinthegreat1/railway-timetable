@@ -6,7 +6,7 @@ import {TrainSummariesCard} from "@/components/train-summaries";
 import {TailwindColorBg, TailwindColorDivide} from "@/types/color";
 import {Station, StationNames, Trains} from "@/types/types";
 import {millisToHourMinute} from "@/utils/time";
-import {isEnabled, isLoaded} from "@/utils/train";
+import {isEnabled, isLoaded, isUp} from "@/utils/train";
 
 type TimetableProps = {
   stationNames: StationNames,
@@ -23,7 +23,10 @@ export function Timetable({stationNames, date, trains, getTrainEnabledCallback, 
   Chart.register(CategoryScale, LineElement, PointElement, TimeScale);
 
   const [stations, setStations] = useState<Station[]>(sortedStations.map(stationName => ({stationName, enabled: true})));
-  const enabledTrains = trains.filter(isEnabled);
+  const [up, setUp] = useState<boolean>(true);
+  const [down, setDown] = useState<boolean>(true);
+
+  const enabledTrains = trains.filter(isEnabled).filter(train => up || isUp(stations, train) !== true).filter(train => down || isUp(stations, train) !== false);
   const loadedTrains = trains.filter(isLoaded);
   const trainsText = `显示 ${enabledTrains.length}/${trains.length}列`;
   const trainsLoadingText = `加载中 ${loadedTrains.length}/${trains.length}列`
@@ -102,6 +105,17 @@ export function Timetable({stationNames, date, trains, getTrainEnabledCallback, 
             <input id="enabled" type="checkbox" checked={enabled} onChange={getStationEnabledCallback(index)}/>
           </div>
         )}
+      </div>
+      <div className="text-lg">方向</div>
+      <div className="flex flex-wrap gap-4">
+        <div className={`p-2 rounded-xl ${colorBg} flex flex-row gap-2`}>
+          <div>上行</div>
+          <input id="enabled" type="checkbox" checked={up} onChange={e => setUp(e.target.checked)}/>
+        </div>
+        <div className={`p-2 rounded-xl ${colorBg} flex flex-row gap-2`}>
+          <div>下行</div>
+          <input id="enabled" type="checkbox" checked={down} onChange={e => setDown(e.target.checked)}/>
+        </div>
       </div>
       <div className="text-lg">运行图</div>
       <Line data={data} options={options}></Line>

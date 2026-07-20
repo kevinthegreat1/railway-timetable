@@ -6,7 +6,7 @@ import {dateToUnix, sleep} from "@/utils/time";
 export async function loadMtaTrains(timetableRoute: DatedRoute, routesToSearch: Routes, setTrains: (trains: MtaTimetableTrains) => void) {
   let trains: MtaTimetableTrains = [];
 
-  async function onTrains(newTrains: MtaTimetableTrains) {
+  function onTrains(newTrains: MtaTimetableTrains) {
     trains.push(...newTrains);
     trains = uniqby(trains, "leg.train.train_id");
     setTrains(trains);
