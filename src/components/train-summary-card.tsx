@@ -29,13 +29,13 @@ export function TrainSummaryCard({stationNames, train, showDetail, enabledOption
       </div>
       <div className="py-2 flex justify-evenly items-center">
         <div>
-          <div>{train.boardTime}</div>
+          <div>{train.boardTime.split(" ")[1]}</div>
           <div>{getStationName(stationNames, train.boardStationCode)} ({train.boardStationCode})</div>
           <div>始：{getStationName(stationNames, train.originStationCode)} ({train.originStationCode})</div>
         </div>
         <div>→</div>
         <div>
-          <div>{train.alightTime}</div>
+          <div>{train.alightTime.split(" ")[1]}</div>
           <div>{getStationName(stationNames, train.alightStationCode)} ({train.alightStationCode})</div>
           <div>终：{getStationName(stationNames, train.terminalStationCode)} ({train.terminalStationCode})</div>
         </div>
@@ -44,7 +44,7 @@ export function TrainSummaryCard({stationNames, train, showDetail, enabledOption
         {trainStops.map((trainStop, index) =>
           <div key={index} className="flex justify-between items-center">
             <div>{trainStop.stationNo ? trainStop.stationNo : index + 1}. {trainStop.stationName}</div>
-            {trainStop.arriveTime && trainStop.leaveTime && <div>{trainStop.arriveTime} - {trainStop.leaveTime}</div>}
+            {trainStop.arriveTime && trainStop.leaveTime && <div>{trainStop.arriveTime.split(" ")[1]} - {trainStop.leaveTime.split(" ")[1]}</div>}
             {trainStop.stopoverTime && <div>{trainStop.stopoverTime.endsWith("分钟") ? trainStop.stopoverTime.substring(0, trainStop.stopoverTime.length - 1) : trainStop.stopoverTime}</div>}
           </div>
         )}

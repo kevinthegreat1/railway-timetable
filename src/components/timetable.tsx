@@ -4,7 +4,7 @@ import {ChangeEventHandler, useState} from "react";
 import {Line} from "react-chartjs-2";
 import {TrainSummariesCard} from "@/components/train-summaries";
 import {TailwindColorBg, TailwindColorDivide} from "@/types/color";
-import {Station, StationNames, Trains} from "@/types/types";
+import {MinuteTimestamp, Station, StationNames, Trains} from "@/types/types";
 import {millisToHourMinute} from "@/utils/time";
 import {isEnabled, isLoaded, isUp} from "@/utils/train";
 
@@ -17,7 +17,7 @@ type TimetableProps = {
   colorBg: TailwindColorBg,
   colorDivide: TailwindColorDivide,
 };
-type TrainStopData = { stationName: string, time: string };
+type TrainStopData = { stationName: string, time: MinuteTimestamp };
 
 export function Timetable({stationNames, date, trains, getTrainEnabledCallback, sortedStations, colorBg, colorDivide }: TimetableProps) {
   Chart.register(CategoryScale, LineElement, PointElement, TimeScale);
@@ -40,10 +40,10 @@ export function Timetable({stationNames, date, trains, getTrainEnabledCallback, 
           if (!stop) {
             return times;
           }
-          if (stop.arriveTime && stop.arriveTime.match("\\d+:\\d+")) {
+          if (stop.arriveTime && stop.arriveTime.match(/\d+-\d+-\d+ \d+:\d+/)) {
             times.push({stationName: stop.stationName, time: stop.arriveTime});
           }
-          if (stop.leaveTime && stop.leaveTime.match("\\d+:\\d+")) {
+          if (stop.leaveTime && stop.leaveTime.match(/\d+-\d+-\d+ \d+:\d+/)) {
             times.push({stationName: stop.stationName, time: stop.leaveTime});
           }
           return times;
@@ -59,7 +59,7 @@ export function Timetable({stationNames, date, trains, getTrainEnabledCallback, 
       x: {
         type: "time",
         time: {
-          parser: "HH:mm",
+          parser: "YYYY-MM-DD HH:mm",
           unit: "minute",
           displayFormats: {
             minute: "HH:mm"

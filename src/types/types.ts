@@ -18,13 +18,15 @@ export type DatedRoute = Route & {
 
 export type Routes = Route[];
 
+export type DateTime = `${number}-${number}-${number}`;
 export type HourMinuteTime = `${number}:${number}`;
+export type MinuteTimestamp = `${DateTime} ${HourMinuteTime}`;
 
 export type TrainStop = {
   stationName: string,
   stationNo: number,
-  arriveTime: HourMinuteTime,
-  leaveTime: HourMinuteTime,
+  arriveTime: MinuteTimestamp,
+  leaveTime: MinuteTimestamp,
   stopoverTime?: string,
 }
 
@@ -37,8 +39,8 @@ export type Train = {
   terminalStationCode: string,
   boardStationCode: string,
   alightStationCode: string,
-  boardTime: HourMinuteTime,
-  alightTime: HourMinuteTime,
+  boardTime: MinuteTimestamp,
+  alightTime: MinuteTimestamp,
   trainStops: TrainStops,
   enabled: boolean,
 }

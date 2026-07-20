@@ -1,3 +1,5 @@
+import {DateTime, HourMinuteTime} from "@/types/types";
+
 export type CrStationName = {
   pinyinCode: string,
   name: string,
@@ -15,13 +17,13 @@ export type CrStationName = {
 export type CrStationNames = CrStationName[];
 
 export type CrTrainSummary = {
-  arrive_time: string,
+  arrive_time: HourMinuteTime,
   end_station_telecode: string,
   from_station_telecode: string,
   lishi: string,
   start_station_telecode: string,
-  start_time: string,
-  start_train_date: string,
+  start_time: HourMinuteTime,
+  start_train_date: DateTime,
   station_train_code: string, // Human-readable format of the train number at the departing station
   to_station_telecode: string,
   train_no: string,
@@ -48,10 +50,10 @@ export type CrTrainSummaryExtended = CrTrainSummary & {
 }
 
 export type CrTrainStop = {
-  arrive_time: string,
+  arrive_time: HourMinuteTime,
   station_name: string,
   isChina: string,
-  start_time: string,
+  start_time: HourMinuteTime,
   stopover_time: string,
   station_no: string,
   country_code: string,

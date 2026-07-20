@@ -1,8 +1,8 @@
 import {CrTrain} from "@/types/cr-types";
 import {MtaTimetableTrain} from "@/types/mta-types";
-import {HourMinuteTime, Station, StationNames, Train, TrainStop} from "@/types/types";
+import {MinuteTimestamp, Station, StationNames, Train, TrainStop} from "@/types/types";
 import {getStationName} from "@/utils/station-names";
-import {unixToHourMinute} from "@/utils/time";
+import {unixToMinuteTimestamp} from "@/utils/time";
 
 export function isLoaded(train: { trainStops: any[] }) {
   return train.trainStops && train.trainStops.length;
@@ -28,13 +28,13 @@ export function fromCrTrain(t: CrTrain): Train {
     terminalStationCode: t.trainSummary.end_station_telecode,
     boardStationCode: t.trainSummary.from_station_telecode,
     alightStationCode: t.trainSummary.to_station_telecode,
-    boardTime: t.trainSummary.start_time as HourMinuteTime,
-    alightTime: t.trainSummary.arrive_time as HourMinuteTime,
+    boardTime: (t.trainSummary.start_train_date + " " + t.trainSummary.start_time) as MinuteTimestamp,
+    alightTime: (t.trainSummary.start_train_date + " " + t.trainSummary.arrive_time) as MinuteTimestamp,
     trainStops: t.trainStops.map((s): TrainStop => ({
-      stationName: s.station_name.replaceAll(' ', ''),
+      stationName: s.station_name.replaceAll(" ", ""),
       stationNo: parseInt(s.station_no),
-      arriveTime: s.arrive_time as HourMinuteTime,
-      leaveTime: s.start_time as HourMinuteTime,
+      arriveTime: (t.trainSummary.start_train_date + " " + s.arrive_time) as MinuteTimestamp,
+      leaveTime: (t.trainSummary.start_train_date + " " + s.start_time) as MinuteTimestamp,
       stopoverTime: s.stopover_time,
     })),
     enabled: t.enabled
@@ -49,13 +49,13 @@ export function fromMtaTrain(stationNames: StationNames, t: MtaTimetableTrain): 
     terminalStationCode: t.leg.train.details.stops.at(-1)?.code ?? "",
     boardStationCode: t.leg.board,
     alightStationCode: t.leg.alight,
-    boardTime: unixToHourMinute(t.leg.train.details.stops.find(s => s.code === t.leg.board)!.sched_time, "America/New_York"),
-    alightTime: unixToHourMinute(t.leg.train.details.stops.find(s => s.code === t.leg.alight)!.sched_time, "America/New_York"),
+    boardTime: unixToMinuteTimestamp(t.leg.train.details.stops.find(s => s.code === t.leg.board)!.sched_time, "America/New_York"),
+    alightTime: unixToMinuteTimestamp(t.leg.train.details.stops.find(s => s.code === t.leg.alight)!.sched_time, "America/New_York"),
     trainStops: t.leg.train.details.stops.map((s, index): TrainStop => ({
       stationName: getStationName(stationNames, s.code)!,
       stationNo: index + 1,
-      arriveTime: unixToHourMinute(s.sched_time - 60, "America/New_York"),
-      leaveTime: unixToHourMinute(s.sched_time, "America/New_York"),
+      arriveTime: unixToMinuteTimestamp(s.sched_time - 60, "America/New_York"),
+      leaveTime: unixToMinuteTimestamp(s.sched_time, "America/New_York"),
     })),
     enabled: t.enabled
   };
