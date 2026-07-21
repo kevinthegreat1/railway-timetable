@@ -1,4 +1,4 @@
-import {DateTime, HourMinuteTime} from "@/types/types";
+import {HourMinuteTime} from "@/types/types";
 
 export type CrStationName = {
   pinyinCode: string,
@@ -23,7 +23,7 @@ export type CrTrainSummary = {
   lishi: string,
   start_station_telecode: string,
   start_time: HourMinuteTime,
-  start_train_date: DateTime,
+  start_train_date: string,
   station_train_code: string, // Human-readable format of the train number at the departing station
   to_station_telecode: string,
   train_no: string,

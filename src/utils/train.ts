@@ -21,6 +21,7 @@ export function isUp(stations: Station[], train: Train): boolean | undefined {
 }
 
 export function fromCrTrain(t: CrTrain): Train {
+  const startTrainDate = t.trainSummary.start_train_date.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3")
   return ({
     trainId: t.trainSummary.train_no,
     trainCode: t.trainSummary.station_train_code,
@@ -28,13 +29,13 @@ export function fromCrTrain(t: CrTrain): Train {
     terminalStationCode: t.trainSummary.end_station_telecode,
     boardStationCode: t.trainSummary.from_station_telecode,
     alightStationCode: t.trainSummary.to_station_telecode,
-    boardTime: (t.trainSummary.start_train_date + " " + t.trainSummary.start_time) as MinuteTimestamp,
-    alightTime: (t.trainSummary.start_train_date + " " + t.trainSummary.arrive_time) as MinuteTimestamp,
+    boardTime: startTrainDate + " " + t.trainSummary.start_time as MinuteTimestamp,
+    alightTime: startTrainDate + " " + t.trainSummary.arrive_time as MinuteTimestamp,
     trainStops: t.trainStops.map((s): TrainStop => ({
       stationName: s.station_name.replaceAll(" ", ""),
       stationNo: parseInt(s.station_no),
-      arriveTime: (t.trainSummary.start_train_date + " " + s.arrive_time) as MinuteTimestamp,
-      leaveTime: (t.trainSummary.start_train_date + " " + s.start_time) as MinuteTimestamp,
+      arriveTime: startTrainDate + " " + s.arrive_time as MinuteTimestamp,
+      leaveTime: startTrainDate + " " + s.start_time as MinuteTimestamp,
       stopoverTime: s.stopover_time,
     })),
     enabled: t.enabled

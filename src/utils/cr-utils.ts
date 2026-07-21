@@ -1,10 +1,11 @@
 import uniqby from "lodash.uniqby";
 import {CrTrains, CrTrainStops, CrTrainSummary} from "@/types/cr-types";
-import {DatedRoute, Route, Routes, Trains} from "@/types/types";
+import {DatedRoute, Route, Routes, StationNames, Trains} from "@/types/types";
+import {areStationsEqual} from "@/utils/station-names";
 import {sleep} from "@/utils/time";
 import {fromCrTrain} from "@/utils/train";
 
-export async function getTrainsForAllRoutes(timetableRoute: DatedRoute, routesToSearch: Routes, setTrains: (trains: Trains) => void) {
+export async function getTrainsForAllRoutes(stationNames: StationNames, timetableRoute: DatedRoute, routesToSearch: Routes, setTrains: (trains: Trains) => void) {
   const stations = new Set([
     timetableRoute.fromStationCode!,
     timetableRoute.toStationCode!,
@@ -14,6 +15,7 @@ export async function getTrainsForAllRoutes(timetableRoute: DatedRoute, routesTo
 
   function onTrainSummaries(newTrainSummaries: CrTrainSummary[]) {
     trains.push(...newTrainSummaries.filter(getTrainFilter(stations)).map(trainSummary => ({trainSummary, trainStops: [], enabled: true})));
+    trains.sort((a, b) => getTrainPriority(stationNames, timetableRoute, b.trainSummary) - getTrainPriority(stationNames, timetableRoute, a.trainSummary));
     trains = uniqby(trains, "trainSummary.train_no");
     setTrains(trains.map(fromCrTrain));
   }
@@ -28,6 +30,13 @@ export async function getTrainsForAllRoutes(timetableRoute: DatedRoute, routesTo
 
 function getTrainFilter(stations: Set<string>): (train: CrTrainSummary) => boolean {
   return train => stations.has(train.from_station_telecode) && stations.has(train.to_station_telecode);
+}
+
+function getTrainPriority(stationNames: StationNames, timetableRoute: DatedRoute, train: CrTrainSummary): number {
+  return Math.max(
+    +areStationsEqual(stationNames, train.from_station_telecode, timetableRoute.fromStationCode) + +areStationsEqual(stationNames, train.to_station_telecode, timetableRoute.toStationCode),
+    +areStationsEqual(stationNames, train.from_station_telecode, timetableRoute.toStationCode) + +areStationsEqual(stationNames, train.to_station_telecode, timetableRoute.fromStationCode),
+  )
 }
 
 async function getTrainsForRoute(date: string, route: Route, onTrainSummaries: (trainSummaries: CrTrainSummary[]) => void) {

@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import {ChangeEvent, useState} from "react";
 import RouteEntry from "@/components/route-entry";
 import {DatedRoute, Route, Routes, StationNames} from "@/types/types";
@@ -69,7 +70,7 @@ export function RoutesForm({timetableRoute, setTimetableRoute, setLoadTrainSumma
     } else if (isNaN(Date.parse(timetableRoute.date))) {
       alert("日期格式不正确，请使用 YYYY-MM-DD 格式");
       return;
-    } else if (Date.parse(timetableRoute.date) < Date.now()) {
+    } else if (dayjs(timetableRoute.date).isBefore(dayjs(), 'day')) {
       alert("日期不能早于今天");
       return;
     }
@@ -84,8 +85,8 @@ export function RoutesForm({timetableRoute, setTimetableRoute, setLoadTrainSumma
         <div className="py-4 text-center text-xl">路线</div>
         <div className="py-2">
           <RouteEntry
-            fromStationText={timetableRoute.fromStation} fromStationTextCallback={getStationTextCallback(false, -1)} fromStationName={getStationName(stationNames, timetableRoute.fromStationCode)}
-            toStationText={timetableRoute.toStation} toStationTextCallback={getStationTextCallback(true, -1)} toStationName={getStationName(stationNames, timetableRoute.toStationCode)}
+            fromStationText={timetableRoute.fromStation} fromStationTextCallback={getStationTextCallback(false, -1)} fromStationName={getStationName(stationNames, timetableRoute.fromStationCode) ?? timetableRoute.fromStationCode}
+            toStationText={timetableRoute.toStation} toStationTextCallback={getStationTextCallback(true, -1)} toStationName={getStationName(stationNames, timetableRoute.toStationCode) ?? timetableRoute.toStationCode}
             date={timetableRoute.date} dateCallback={dateCallback} bothWays={timetableRoute.bothWays} bothWaysCallback={getBothWaysCallback(-1)}/>
         </div>
       </div>
@@ -99,8 +100,8 @@ export function RoutesForm({timetableRoute, setTimetableRoute, setLoadTrainSumma
         </li>
         {routesToSearch.map((route, index) =>
           <li key={index} className="py-2"><RouteEntry
-            fromStationText={route.fromStation} fromStationTextCallback={getStationTextCallback(false, index)} fromStationName={getStationName(stationNames, route.fromStationCode)}
-            toStationText={route.toStation} toStationTextCallback={getStationTextCallback(true, index)} toStationName={getStationName(stationNames, route.toStationCode)}
+            fromStationText={route.fromStation} fromStationTextCallback={getStationTextCallback(false, index)} fromStationName={getStationName(stationNames, route.fromStationCode) ?? route.fromStationCode}
+            toStationText={route.toStation} toStationTextCallback={getStationTextCallback(true, index)} toStationName={getStationName(stationNames, route.toStationCode) ?? route.toStationCode}
             bothWays={route.bothWays} bothWaysCallback={getBothWaysCallback(index)}
           /></li>
         )}

@@ -13,9 +13,9 @@ export default function CrTimetablePage() {
   const [loadTrainSummaries, setLoadTrainSummaries] = useState<boolean>(false);
   const [generateTimetable, setGenerateTimetable] = useState<boolean>(false);
 
-  const loadTrains: LoadTrains = (_, setTrains) => (timetableRoute, routesToSearch) => {
+  const loadTrains: LoadTrains = (stationNames, setTrains) => (timetableRoute, routesToSearch) => {
     fetch(`/china-railway/init`).then(() => {
-      getTrainsForAllRoutes(timetableRoute, routesToSearch, setTrains);
+      void getTrainsForAllRoutes(stationNames, timetableRoute, routesToSearch, setTrains);
     })
   }
 
