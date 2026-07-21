@@ -14,7 +14,17 @@ export async function getTrainsForAllRoutes(stationNames: StationNames, timetabl
   let trains: CrTrains = [];
 
   function onTrainSummaries(newTrainSummaries: CrTrainSummary[]) {
-    trains.push(...newTrainSummaries.filter(getTrainFilter(stations)).map(trainSummary => ({trainSummary, trainStops: [], enabled: true})));
+    trains.push(...newTrainSummaries
+      .map(t => ({
+        ...t,
+        start_station_telecode: replaceStationCode(t.start_station_telecode),
+        end_station_telecode: replaceStationCode(t.end_station_telecode),
+        from_station_telecode: replaceStationCode(t.from_station_telecode),
+        to_station_telecode: replaceStationCode(t.to_station_telecode),
+      }))
+      .filter(getTrainFilter(stations))
+      .map(trainSummary => ({trainSummary, trainStops: [], enabled: true}))
+    );
     trains.sort((a, b) => getTrainPriority(stationNames, timetableRoute, routesToSearch, b.trainSummary) - getTrainPriority(stationNames, timetableRoute, routesToSearch, a.trainSummary));
     trains = uniqby(trains, "trainSummary.train_no");
     setTrains(trains.map(fromCrTrain));
@@ -26,6 +36,16 @@ export async function getTrainsForAllRoutes(stationNames: StationNames, timetabl
   }
 
   return getTrainsDetails(trains, setTrains);
+}
+
+function replaceStationCode(code: string) {
+  switch (code) {
+    case "FXA": return "FOQ"; // 佛山西
+    case "GZA": return "GBA"; // 广州白云
+    case "KBA": return "HUA"; // 惠州北
+    case "ZQA": return "ZVQ"; // 肇庆
+    default: return code;
+  }
 }
 
 function getTrainFilter(stations: Set<string>): (train: CrTrainSummary) => boolean {
