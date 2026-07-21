@@ -15,7 +15,7 @@ export async function getTrainsForAllRoutes(stationNames: StationNames, timetabl
 
   function onTrainSummaries(newTrainSummaries: CrTrainSummary[]) {
     trains.push(...newTrainSummaries.filter(getTrainFilter(stations)).map(trainSummary => ({trainSummary, trainStops: [], enabled: true})));
-    trains.sort((a, b) => getTrainPriority(stationNames, timetableRoute, b.trainSummary) - getTrainPriority(stationNames, timetableRoute, a.trainSummary));
+    trains.sort((a, b) => getTrainPriority(stationNames, timetableRoute, routesToSearch, b.trainSummary) - getTrainPriority(stationNames, timetableRoute, routesToSearch, a.trainSummary));
     trains = uniqby(trains, "trainSummary.train_no");
     setTrains(trains.map(fromCrTrain));
   }
@@ -32,10 +32,12 @@ function getTrainFilter(stations: Set<string>): (train: CrTrainSummary) => boole
   return train => stations.has(train.from_station_telecode) && stations.has(train.to_station_telecode);
 }
 
-function getTrainPriority(stationNames: StationNames, timetableRoute: DatedRoute, train: CrTrainSummary): number {
+function getTrainPriority(stationNames: StationNames, timetableRoute: DatedRoute, routesToSearch: Routes, train: CrTrainSummary): number {
   return Math.max(
-    +areStationsEqual(stationNames, train.from_station_telecode, timetableRoute.fromStationCode) + +areStationsEqual(stationNames, train.to_station_telecode, timetableRoute.toStationCode),
-    +areStationsEqual(stationNames, train.from_station_telecode, timetableRoute.toStationCode) + +areStationsEqual(stationNames, train.to_station_telecode, timetableRoute.fromStationCode),
+    0.5 + +areStationsEqual(stationNames, train.from_station_telecode, timetableRoute.fromStationCode) + +areStationsEqual(stationNames, train.to_station_telecode, timetableRoute.toStationCode),
+    0.5 + +areStationsEqual(stationNames, train.from_station_telecode, timetableRoute.toStationCode) + +areStationsEqual(stationNames, train.to_station_telecode, timetableRoute.fromStationCode),
+    ...routesToSearch.map(route => +areStationsEqual(stationNames, train.from_station_telecode, route.fromStationCode) + +areStationsEqual(stationNames, train.to_station_telecode, route.toStationCode)),
+    ...routesToSearch.map(route => +areStationsEqual(stationNames, train.from_station_telecode, route.toStationCode) + +areStationsEqual(stationNames, train.to_station_telecode, route.fromStationCode)),
   )
 }
 

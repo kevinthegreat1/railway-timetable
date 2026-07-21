@@ -8,6 +8,8 @@ import {TailwindColorBg, TailwindColorDivide} from "@/types/color";
 export type RoutesFormProps = {
   timetableRoute: DatedRoute,
   setTimetableRoute: (timetableRoute: DatedRoute) => void,
+  routesToSearch: Routes,
+  setRoutesToSearch: (routesToSearch: Routes) => void,
   setLoadTrainSummaries: (loading: boolean) => void,
   stationNames: StationNames,
   loadTrains: (timetableRoute: DatedRoute, routesToSearch: Routes) => void,
@@ -16,9 +18,7 @@ export type RoutesFormProps = {
   colorDivide: TailwindColorDivide,
 };
 
-export function RoutesForm({timetableRoute, setTimetableRoute, setLoadTrainSummaries, stationNames, loadTrains, colorBg, colorFg, colorDivide}: RoutesFormProps) {
-  const [routesToSearch, setRoutesToSearch] = useState<Routes>([{bothWays: true} as Route]);
-
+export function RoutesForm({timetableRoute, setTimetableRoute, routesToSearch, setRoutesToSearch, setLoadTrainSummaries, stationNames, loadTrains, colorBg, colorFg, colorDivide}: RoutesFormProps) {
   function getStationTextCallback(toStation: boolean, index: number) {
     return (e: ChangeEvent<HTMLInputElement>) => {
       const stationName = e.target.value;
@@ -93,7 +93,7 @@ export function RoutesForm({timetableRoute, setTimetableRoute, setLoadTrainSumma
       <ul className={`m-4 px-4 divide-y rounded-3xl ${colorBg} ${colorDivide}`}>
         <li className="py-4 flex items-center">
           <div className="grow basis-0"></div>
-          <div className="text-xl">路径</div>
+          <div className="text-xl">路径（需方向一致）</div>
           <div className="grow basis-0 flex justify-end">
             <button onClick={newRouteToSearch} className={`w-8 h-8 rounded-full text-lg ${colorFg}`}>+</button>
           </div>

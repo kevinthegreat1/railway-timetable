@@ -74,7 +74,10 @@ export function Timetable({stationNames, date, trains, getTrainEnabledCallback, 
         labels: stations.filter(({enabled}) => enabled).map(({stationName}) => stationName)
           .filter((stationName) =>
             enabledTrains.some(train => train.trainStops.some(stop => stop.stationName == stationName))
-          )
+          ),
+        ticks: {
+          autoSkip: false
+        }
       }
     },
     parsing: {

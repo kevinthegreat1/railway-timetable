@@ -3,7 +3,7 @@ import {Loading} from "@/components/loading";
 import {RoutesForm} from "@/components/routes-form";
 import {Timetable} from "@/components/timetable";
 import {TrainSummaries} from "@/components/train-summaries";
-import {DatedRoute, Routes, StationNames, Trains} from "@/types/types";
+import {DatedRoute, Route, Routes, StationNames, Trains} from "@/types/types";
 import {sortStations} from "@/utils/sort-stations";
 import {isLoaded} from "@/utils/train";
 import {TailwindColorBg, TailwindColorDivide} from "@/types/color";
@@ -28,9 +28,10 @@ export default function TimetablePage({fetchStationNames, loadTrains, loadTrainS
   useEffect(() => void fetchStationNames().then(setStationNames), []);
 
   const [timetableRoute, setTimetableRoute] = useState<DatedRoute>({bothWays: true, date: new Date().toISOString().split('T')[0]} as DatedRoute);
+  const [routesToSearch, setRoutesToSearch] = useState<Routes>([{bothWays: true} as Route]);
   const [trains, setTrains] = useState<Trains | undefined>(undefined);
 
-  const sortedStations = sortStations(stationNames, timetableRoute, trains);
+  const sortedStations = sortStations(stationNames, timetableRoute, routesToSearch, trains);
 
   function getTrainEnabledCallback(trainId: string): ChangeEventHandler<HTMLInputElement> {
     return e => {
@@ -64,7 +65,7 @@ export default function TimetablePage({fetchStationNames, loadTrains, loadTrainS
   } else {
     return (
       <main className={`min-h-screen ${colorBg}`}>
-        <RoutesForm timetableRoute={timetableRoute} setTimetableRoute={setTimetableRoute} setLoadTrainSummaries={setLoadTrainSummaries} stationNames={stationNames} loadTrains={loadTrains(stationNames, setTrains)} colorBg={colorMg} colorFg={colorFg} colorDivide={colorDivide}/>
+        <RoutesForm timetableRoute={timetableRoute} setTimetableRoute={setTimetableRoute} routesToSearch={routesToSearch} setRoutesToSearch={setRoutesToSearch} setLoadTrainSummaries={setLoadTrainSummaries} stationNames={stationNames} loadTrains={loadTrains(stationNames, setTrains)} colorBg={colorMg} colorFg={colorFg} colorDivide={colorDivide}/>
       </main>
     )
   }

@@ -1,12 +1,12 @@
 import toposort from "toposort";
-import {DatedRoute, StationNames, Trains, TrainStops} from "@/types/types";
+import {DatedRoute, Route, Routes, StationNames, Trains, TrainStops} from "@/types/types";
 import {areStationsEqual, getStationName} from "@/utils/station-names";
 import {isEnabled, isLoaded} from "@/utils/train";
 
 /**
  * Combines the stops from all trains into a single list of stations using a topological sort.
  */
-export function sortStations(stationNames: StationNames, timetableRoute: DatedRoute, trains?: Trains) {
+export function sortStations(stationNames: StationNames, timetableRoute: DatedRoute, routesToSearch: Routes, trains?: Trains) {
   if (!trains || !trains.length) {
     return [];
   }
@@ -15,13 +15,25 @@ export function sortStations(stationNames: StationNames, timetableRoute: DatedRo
   // Loop through all trains with stops loaded and add the stations to the graph
   for (const train of trains.filter(isLoaded).filter(isEnabled)) {
     let trainStops;
+    // Check the full length timetable route first
     if (areStationsEqual(stationNames, train.boardStationCode, timetableRoute.fromStationCode) && areStationsEqual(stationNames, train.alightStationCode, timetableRoute.toStationCode)) {
       // Train stops are already in the correct order
       trainStops = trimStops(stationNames, train.trainStops, timetableRoute);
     } else if (areStationsEqual(stationNames, train.boardStationCode, timetableRoute.toStationCode) && areStationsEqual(stationNames, train.alightStationCode, timetableRoute.fromStationCode)) {
       // Train stops are in the reverse order
       trainStops = trimStops(stationNames, train.trainStops.toReversed(), timetableRoute);
+    } else for (const route of routesToSearch) {
+      // Check if train matches additional routes to search
+      if (areStationsEqual(stationNames, train.boardStationCode, route.fromStationCode) && areStationsEqual(stationNames, train.alightStationCode, route.toStationCode)) {
+        trainStops = trimStops(stationNames, train.trainStops, route);
+        break;
+      } else if (areStationsEqual(stationNames, train.boardStationCode, route.toStationCode) && areStationsEqual(stationNames, train.alightStationCode, route.fromStationCode)) {
+        trainStops = trimStops(stationNames, train.trainStops.toReversed(), route);
+        break;
+      }
     }
+
+    // No segment of this train is usable to calculate the station order
     if (!trainStops) {
       continue;
     }
@@ -34,8 +46,8 @@ export function sortStations(stationNames: StationNames, timetableRoute: DatedRo
   return allSortedStations.slice(allSortedStations.indexOf(getStationName(stationNames, timetableRoute.fromStationCode)!), allSortedStations.lastIndexOf(getStationName(stationNames, timetableRoute.toStationCode)!) + 1);
 }
 
-function trimStops(stationNames: StationNames, trainStops: TrainStops, timetableRoute: DatedRoute) {
-  return trainStops.slice(trainStops.findIndex(trainStop => trainStop.stationName === getStationName(stationNames, timetableRoute.fromStationCode)), trainStops.findLastIndex(trainStop => trainStop.stationName === getStationName(stationNames, timetableRoute.toStationCode)) + 1);
+function trimStops(stationNames: StationNames, trainStops: TrainStops, route: Route) {
+  return trainStops.slice(trainStops.findIndex(trainStop => trainStop.stationName === getStationName(stationNames, route.fromStationCode)), trainStops.findLastIndex(trainStop => trainStop.stationName === getStationName(stationNames, route.toStationCode)) + 1);
 }
 
 /**
