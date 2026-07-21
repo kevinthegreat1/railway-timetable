@@ -8,7 +8,7 @@ import {sortStations} from "@/utils/sort-stations";
 import {isLoaded} from "@/utils/train";
 import {TailwindColorBg, TailwindColorDivide} from "@/types/color";
 
-export type LoadTrains = (stationNames: StationNames, setTrains: (trains: Trains) => void) => (timetableRoute: DatedRoute, routesToSearch: Routes) => void;
+export type LoadTrains = (stationNames: StationNames, timetableRoute: DatedRoute, routesToSearch: Routes, setTrains: (trains: Trains) => void) => void;
 
 type TimetablePageProps = {
   fetchStationNames(): Promise<StationNames>,
@@ -65,7 +65,7 @@ export default function TimetablePage({fetchStationNames, loadTrains, loadTrainS
   } else {
     return (
       <main className={`min-h-screen ${colorBg}`}>
-        <RoutesForm timetableRoute={timetableRoute} setTimetableRoute={setTimetableRoute} routesToSearch={routesToSearch} setRoutesToSearch={setRoutesToSearch} setLoadTrainSummaries={setLoadTrainSummaries} stationNames={stationNames} loadTrains={loadTrains(stationNames, setTrains)} colorBg={colorMg} colorFg={colorFg} colorDivide={colorDivide}/>
+        <RoutesForm timetableRoute={timetableRoute} setTimetableRoute={setTimetableRoute} routesToSearch={routesToSearch} setRoutesToSearch={setRoutesToSearch} setLoadTrainSummaries={setLoadTrainSummaries} stationNames={stationNames} loadTrains={() => loadTrains(stationNames, timetableRoute, routesToSearch, setTrains)} colorBg={colorMg} colorFg={colorFg} colorDivide={colorDivide}/>
       </main>
     )
   }

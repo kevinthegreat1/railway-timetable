@@ -12,7 +12,7 @@ export default function AmtrakTimetablePage() {
   const [loadTrainSummaries, setLoadTrainSummaries] = useState<boolean>(false);
   const [generateTimetable, setGenerateTimetable] = useState<boolean>(false);
 
-  const loadTrains: LoadTrains = (_, setTrains) => (timetableRoute, routesToSearch) => {}
+  const loadTrains: LoadTrains = (_, timetableRoute, routesToSearch, setTrains) => {}
 
   return <TimetablePage fetchStationNames={fetchStationNames} loadTrains={loadTrains}
                         loadTrainSummaries={loadTrainSummaries} setLoadTrainSummaries={setLoadTrainSummaries}

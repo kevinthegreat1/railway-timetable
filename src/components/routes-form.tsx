@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import {ChangeEvent, useState} from "react";
+import {ChangeEvent} from "react";
 import RouteEntry from "@/components/route-entry";
 import {DatedRoute, Route, Routes, StationNames} from "@/types/types";
 import {getStationCode, getStationName} from "@/utils/station-names";
@@ -12,7 +12,7 @@ export type RoutesFormProps = {
   setRoutesToSearch: (routesToSearch: Routes) => void,
   setLoadTrainSummaries: (loading: boolean) => void,
   stationNames: StationNames,
-  loadTrains: (timetableRoute: DatedRoute, routesToSearch: Routes) => void,
+  loadTrains: () => void,
   colorBg: TailwindColorBg,
   colorFg: TailwindColorBg,
   colorDivide: TailwindColorDivide,
@@ -76,7 +76,7 @@ export function RoutesForm({timetableRoute, setTimetableRoute, routesToSearch, s
     }
 
     setLoadTrainSummaries(true);
-    loadTrains(timetableRoute, routesToSearch);
+    loadTrains();
   }
 
   return (
