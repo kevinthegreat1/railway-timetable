@@ -21,12 +21,13 @@ export type Routes = Route[];
 export type DateTime = `${number}-${number}-${number}`;
 export type HourMinuteTime = `${number}:${number}`;
 export type MinuteTimestamp = `${DateTime} ${HourMinuteTime}`;
+export type MinuteTimestampUnconfirmed = `${DateTime} ${string}`;
 
 export type TrainStop = {
   stationName: string,
   stationNo: number,
-  arriveTime: MinuteTimestamp,
-  leaveTime: MinuteTimestamp,
+  arriveTime: MinuteTimestamp | MinuteTimestampUnconfirmed,
+  leaveTime: MinuteTimestamp | MinuteTimestampUnconfirmed,
   stopoverTime?: string,
 }
 
@@ -39,8 +40,8 @@ export type Train = {
   terminalStationCode: string,
   boardStationCode: string,
   alightStationCode: string,
-  boardTime: MinuteTimestamp,
-  alightTime: MinuteTimestamp,
+  boardTime: MinuteTimestamp | MinuteTimestampUnconfirmed,
+  alightTime: MinuteTimestamp | MinuteTimestampUnconfirmed,
   trainStops: TrainStops,
   clusterColor?: string,
   enabled: boolean,

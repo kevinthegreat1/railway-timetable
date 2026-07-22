@@ -1,9 +1,9 @@
 import {kmeans} from "ml-kmeans";
 import {CrTrain} from "@/types/cr-types";
 import {MtaTimetableTrain} from "@/types/mta-types";
-import {MinuteTimestamp, StationNames, Train, Trains, TrainStop} from "@/types/types";
+import {MinuteTimestampUnconfirmed, StationNames, Train, Trains, TrainStop} from "@/types/types";
 import {getStationName} from "@/utils/station-names";
-import {minuteTimestampToUnix, unixToMinuteTimestamp} from "@/utils/time";
+import {minuteTimestampUnconfirmedToUnix, unixToMinuteTimestamp} from "@/utils/time";
 
 export function isLoaded(train: { trainStops: any[] }) {
   return train.trainStops && train.trainStops.length;
@@ -40,22 +40,26 @@ export function clusterTrains(route: string[], trains: Trains) {
     );
     if (routeSegment.length < 2) return;
 
-    const routeMinutes = Math.max(
-      minuteTimestampToUnix(stopsOnRoute.at(-1)!.arriveTime).unix() - minuteTimestampToUnix(stopsOnRoute[0].leaveTime).unix(),
-      minuteTimestampToUnix(stopsOnRoute[0].arriveTime).unix() - minuteTimestampToUnix(stopsOnRoute.at(-1)!.leaveTime).unix()
-    ) / 60;
+    // Usually one of these is positive and one of these is negative, but they may also be invalid
+    const routeTimes = [
+      (minuteTimestampUnconfirmedToUnix(stopsOnRoute.at(-1)!.arriveTime)?.unix() ?? NaN) - (minuteTimestampUnconfirmedToUnix(stopsOnRoute[0].leaveTime)?.unix() ?? NaN),
+      (minuteTimestampUnconfirmedToUnix(stopsOnRoute[0].arriveTime)?.unix() ?? NaN) - (minuteTimestampUnconfirmedToUnix(stopsOnRoute.at(-1)!.leaveTime)?.unix() ?? NaN)
+    ]
+    const routeMinutes = Math.max(...routeTimes.filter(Number.isFinite)) / 60;
+    if (!isFinite(routeMinutes)) return;
 
     return {train, clusterData: [stopsOnRoute.length / routeSegment.length, routeMinutes / (routeSegment.length - 1)]};
   }).filter(trainsData => !!trainsData);
 
   if (!trainsData.length) return;
 
-  const {clusters, centroids} = kmeans(normalizeTimeRatio(trainsData), 3, {
+  const k = Math.min(3, trainsData.length);
+  const {clusters, centroids} = kmeans(normalizeTimeRatio(trainsData), k, {
     initialization: [
       [0.2, 0.2],
       [0.5, 0.5],
       [0.8, 0.8]
-    ]
+    ].slice(0, k)
   });
   const centroidsRankToIndex = centroids
     .map((c, index) => ({index, stops: c[0]}))
@@ -86,13 +90,13 @@ export function fromCrTrain(t: CrTrain): Train {
     terminalStationCode: t.trainSummary.end_station_telecode,
     boardStationCode: t.trainSummary.from_station_telecode,
     alightStationCode: t.trainSummary.to_station_telecode,
-    boardTime: startTrainDate + " " + t.trainSummary.start_time as MinuteTimestamp,
-    alightTime: startTrainDate + " " + t.trainSummary.arrive_time as MinuteTimestamp,
+    boardTime: startTrainDate + " " + t.trainSummary.start_time as MinuteTimestampUnconfirmed,
+    alightTime: startTrainDate + " " + t.trainSummary.arrive_time as MinuteTimestampUnconfirmed,
     trainStops: t.trainStops.map((s): TrainStop => ({
       stationName: s.station_name.replaceAll(" ", ""),
       stationNo: parseInt(s.station_no),
-      arriveTime: startTrainDate + " " + s.arrive_time as MinuteTimestamp,
-      leaveTime: startTrainDate + " " + s.start_time as MinuteTimestamp,
+      arriveTime: startTrainDate + " " + s.arrive_time as MinuteTimestampUnconfirmed,
+      leaveTime: startTrainDate + " " + s.start_time as MinuteTimestampUnconfirmed,
       stopoverTime: s.stopover_time,
     })),
     enabled: t.enabled

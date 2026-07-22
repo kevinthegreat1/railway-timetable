@@ -5,7 +5,7 @@ import {Line, Scatter} from "react-chartjs-2";
 import {TrainSummariesCard} from "@/components/train-summaries";
 import {TailwindColorBg, TailwindColorDivide} from "@/types/color";
 import {MinuteTimestamp, Station, StationNames, Trains} from "@/types/types";
-import {millisToHourMinute} from "@/utils/time";
+import {isMinuteTimestamp, millisToHourMinute} from "@/utils/time";
 import {clusterTrains, isDown, isEnabled, isLoaded, isUp} from "@/utils/train";
 
 type TimetableProps = {
@@ -43,10 +43,10 @@ export function Timetable({stationNames, date, trains, getTrainEnabledCallback, 
         if (!stop) {
           return times;
         }
-        if (stop.arriveTime && stop.arriveTime.match(/\d+-\d+-\d+ \d+:\d+/)) {
+        if (isMinuteTimestamp(stop.arriveTime)) {
           times.push({stationName: stop.stationName, time: stop.arriveTime});
         }
-        if (stop.leaveTime && stop.leaveTime.match(/\d+-\d+-\d+ \d+:\d+/)) {
+        if (isMinuteTimestamp(stop.leaveTime)) {
           times.push({stationName: stop.stationName, time: stop.leaveTime});
         }
         return times;
