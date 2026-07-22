@@ -42,6 +42,7 @@ export type Train = {
   boardTime: MinuteTimestamp,
   alightTime: MinuteTimestamp,
   trainStops: TrainStops,
+  clusterColor?: string,
   enabled: boolean,
 }
 

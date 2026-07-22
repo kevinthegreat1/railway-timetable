@@ -1,8 +1,9 @@
+import {kmeans} from "ml-kmeans";
 import {CrTrain} from "@/types/cr-types";
 import {MtaTimetableTrain} from "@/types/mta-types";
-import {MinuteTimestamp, Station, StationNames, Train, TrainStop} from "@/types/types";
+import {MinuteTimestamp, StationNames, Train, Trains, TrainStop} from "@/types/types";
 import {getStationName} from "@/utils/station-names";
-import {unixToMinuteTimestamp} from "@/utils/time";
+import {minuteTimestampToUnix, unixToMinuteTimestamp} from "@/utils/time";
 
 export function isLoaded(train: { trainStops: any[] }) {
   return train.trainStops && train.trainStops.length;
@@ -12,12 +13,68 @@ export function isEnabled(train: { enabled: boolean }) {
   return train.enabled;
 }
 
-export function isUp(stations: Station[], train: Train): boolean | undefined {
-  const stationsTrain = stations
-    .map(({stationName}) => train.trainStops.find(s => s.stationName === stationName))
-    .filter(s => !!s)
+export function getStopsOnRoute(route: string[], train: Train) {
+  return route
+    .map(stationName => train.trainStops.find(s => s.stationName === stationName))
+    .filter(s => !!s);
+}
 
-  return stationsTrain.length !== 0 ? stationsTrain[0].stationNo > stationsTrain.at(-1)!.stationNo : undefined;
+export function isUp(route: string[], train: Train): boolean {
+  const stopsOnRoute = getStopsOnRoute(route, train);
+  return stopsOnRoute.length !== 0 && stopsOnRoute[0].stationNo > stopsOnRoute.at(-1)!.stationNo;
+}
+
+export function isDown(route: string[], train: Train): boolean {
+  const stopsOnRoute = getStopsOnRoute(route, train);
+  return stopsOnRoute.length !== 0 && stopsOnRoute[0].stationNo < stopsOnRoute.at(-1)!.stationNo;
+}
+
+export function clusterTrains(route: string[], trains: Trains) {
+  const trainsData = trains.map((train) => {
+    const stopsOnRoute = getStopsOnRoute(route, train);
+    if (stopsOnRoute.length < 2) return;
+
+    const routeSegment = route.slice(
+      route.indexOf(stopsOnRoute[0]?.stationName),
+      route.lastIndexOf(stopsOnRoute.at(-1)!.stationName) + 1
+    );
+    if (routeSegment.length < 2) return;
+
+    const routeMinutes = Math.max(
+      minuteTimestampToUnix(stopsOnRoute.at(-1)!.arriveTime).unix() - minuteTimestampToUnix(stopsOnRoute[0].leaveTime).unix(),
+      minuteTimestampToUnix(stopsOnRoute[0].arriveTime).unix() - minuteTimestampToUnix(stopsOnRoute.at(-1)!.leaveTime).unix()
+    ) / 60;
+
+    return {train, clusterData: [stopsOnRoute.length / routeSegment.length, routeMinutes / (routeSegment.length - 1)]};
+  }).filter(trainsData => !!trainsData);
+
+  if (!trainsData.length) return;
+
+  const {clusters, centroids} = kmeans(normalizeTimeRatio(trainsData), 3, {
+    initialization: [
+      [0.2, 0.2],
+      [0.5, 0.5],
+      [0.8, 0.8]
+    ]
+  });
+  const centroidsRankToIndex = centroids
+    .map((c, index) => ({index, stops: c[0]}))
+    .sort((a, b) => b.stops - a.stops)
+    .map(({index}) => index)
+  const colors = ["#0000FF", "#00C000", "#FF0000"]
+
+  trainsData.forEach(({train}, index) => train.clusterColor = colors[centroidsRankToIndex.indexOf(clusters[index])]);
+  return trainsData;
+}
+
+function normalizeTimeRatio(trainsData: { train: Train; clusterData: number[] }[]) {
+  const timeRatios = trainsData.map(d => d.clusterData[1]);
+  const timeRatioMin = Math.min(...timeRatios), timeRatioMax = Math.max(...timeRatios);
+  const timeRatioRange = (timeRatioMax - timeRatioMin) || 1;
+  return trainsData.map(({clusterData}) => [
+    clusterData[0],
+    (clusterData[1] - timeRatioMin) / timeRatioRange,
+  ]);
 }
 
 export function fromCrTrain(t: CrTrain): Train {

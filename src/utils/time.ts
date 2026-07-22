@@ -38,3 +38,7 @@ export function millisToHourMinute(timestamp: number, timeZone?: string): HourMi
 export function dateToUnix(date: string, timeZone: string): Dayjs {
   return dayjs.tz(date, timeZone);
 }
+
+export function minuteTimestampToUnix(minuteTimestamp: MinuteTimestamp): Dayjs {
+  return dayjs(minuteTimestamp, "YYYY-MM-DD HH:mm");
+}

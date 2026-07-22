@@ -15,6 +15,7 @@
     "chartjs-adapter-dayjs-4": "^1.0.4",
     "dayjs": "^1.11.21",
     "lodash.uniqby": "^4.7.0",
+    "ml-kmeans": "^7.0.1",
     "next": "16.2.10",
     "react": "19.2.7",
     "react-chartjs-2": "^5.3.1",
